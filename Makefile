@@ -6,9 +6,7 @@ all: venv install
 
 venv:
 	@echo "$(GREEN) ===> creating virtual environnement...$(RESET)"
-	@watch -n 0.1 echo -ne "\\033[1G\\033[32m[   ] \\033[31m▉▉▉▉\\033[0m" &
 	@python -m venv virtualEnv
-	@kill %1
 	@echo "$(GREEN) ===> Done.$(RESET)"
 
 install:
