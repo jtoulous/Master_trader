@@ -1,11 +1,8 @@
 ## Objectives
-Predict if positions taken on a buy will be winning positions or losing positions 
+Predict whether positions taken on a buy will be winning or losing positions.
 
-## Algo explanation
-1. Preprocessing:<br>
-   1. we have a datafile `srcs/data/EURUSD/EURUSD_DATA.csv`, wich as every value of the EURUSD for every minute in the last 3 years (OPEN, HIGH, LOW, CLOSE),
-with these values I calculate every indicators that will be used as my features.
-   2. I determine the label for each line wich will either be a 'WIN' or 'LOSS' by calculating my stop-loss
-and take-profit using the ATR, then according to the argument `-lifespan` i will observe the next values and check if it either hits the
-stop-loss or the take-profit first.
-   3. Finally, I will scale my features and save the preprocessed data in `srcs/data/EURUSD/EURUSD_preprocessed.cv`, to save time on the next runs
+## Algorithm Explanation
+1. Preprocessing:
+   1. We have a data file, `srcs/data/EURUSD/EURUSD_DATA.csv`, which contains every value of the EURUSD for each minute over the past three years (OPEN, HIGH, LOW, CLOSE). Using these values, I will calculate all the indicators that will be used as features.
+   2. I will determine the label for each line, which will be either 'WIN' or 'LOSS', by calculating the stop-loss and take-profit using the ATR (Average True Range). According to the -lifespan argument, I will observe the subsequent values and check whether the stop-loss or the take-profit is hit first.
+   3. Finally, I will scale my features and save the preprocessed data in `srcs/data/EURUSD/EURUSD_preprocessed.csv` to save time on future runs.
