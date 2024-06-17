@@ -11,7 +11,7 @@ Predict whether positions taken on a buy will be winning or losing positions.
    1. Using scikit-learn, I train 5 different models (MLP, XGB, Random forest, Logistic regression, Gradient boosting), with my dataframe EURUSD_preprocessed.csv. Under sampling the losses is necessary since we have way more losses then wins in the dataframe.
    2. I save the trained models with joblib
    
-3.  Prediction:
+3. Prediction:
    1. I preprocess the given data file if needed.
    2. I load my 5 trained models with joblib.
    3. I make the predictions for each model.
