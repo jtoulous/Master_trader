@@ -8,3 +8,8 @@ def printError(error):
 
 def printInfo(info):
     print(f'{Fore.BLUE}{info}{Style.RESET_ALL}')
+
+def printHeader(currency):
+    printLog('\n=============================================================')
+    printLog(f'||                          {currency}                          ||')
+    printLog('=============================================================')

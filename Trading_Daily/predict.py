@@ -12,7 +12,7 @@ def parsing():
         description='predictive model for trading'
     )
     parser.add_argument('-EURUSD', type=str, help='EURUSD datafile')
-    parser.add_argument('-lifespan', type=int, default=10, help='lifespan of the trade in days')
+    parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')

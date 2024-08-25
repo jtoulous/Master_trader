@@ -3,7 +3,7 @@ import argparse as ap
 
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
-from utils.tools import printLog, printError
+from utils.tools import printLog, printError, printHeader
 
 
 def parsing():
@@ -14,7 +14,7 @@ def parsing():
     parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
     parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
 
-    parser.add_argument('-lifespan', type=int, default=10, help='lifespan of the trade in days')
+    parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
@@ -57,19 +57,15 @@ if __name__ == '__main__':
     try:
         args = parsing()
         if args.EURUSD is not None:
-            printLog('\n=============================================================')
-            printLog('||                          EURUSD                          ||')
-            printLog('=============================================================')
+            printHeader('EURUSD')
             dataframe = preprocessing_train('EURUSD', args, args.EURUSD)
             trainModels(dataframe, 'EURUSD')
         
         if args.GBPUSD is not None:
-            printLog('\n=============================================================')
-            printLog('||                          GBPUSD                          ||')
-            printLog('=============================================================')
+            printHeader('GBPUSD')
             dataframe = preprocessing_train('GBPUSD', args, args.GBPUSD)
             trainModels(dataframe, 'GBPUSD')
 
 
     except Exception as error:
-        print(error)
+        printError(error)
