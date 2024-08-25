@@ -11,7 +11,9 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-EURUSD', type=str, help='EURUSD datafile')
+    parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
+    parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
+
     parser.add_argument('-lifespan', type=int, default=10, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
@@ -27,28 +29,31 @@ def parsing():
     parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-    error_check(args)
+    if args.EURUSD is not None:    
+        error_check('EURUSD')
+    if args.GBPUSD is not None:    
+        error_check('GBPUSD')
     return args
 
-def error_check(args):
-    if args.EURUSD is not None:
-        if not os.path.exists('models/random_forest_model_EURUSD.pkl')\
-        or not os.path.exists('models/gradient_boosting_EURUSD.pkl')\
-        or not os.path.exists('models/logreg_EURUSD.pkl')\
-        or not os.path.exists('models/mlp_EURUSD.pkl')\
-        or not os.path.exists('models/xgb_EURUSD.pkl')\
-        or not os.path.exists('models/xgb_label_encoder_EURUSD.pkl'):
-            raise Exception('error: train EURUSD models before making EURUSD predictions')
+def error_check(currency_pair):
+    if not os.path.exists(f'models/architectures/random_forest_model_{currency_pair}.pkl')\
+    or not os.path.exists(f'models/architectures/gradient_boosting_{currency_pair}.pkl')\
+    or not os.path.exists(f'models/architectures/logreg_{currency_pair}.pkl')\
+    or not os.path.exists(f'models/architectures/mlp_{currency_pair}.pkl')\
+    or not os.path.exists(f'models/architectures/xgb_{currency_pair}.pkl')\
+    or not os.path.exists(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl'):
+        raise Exception(f'error: train {currency_pair} models before making {currency_pair} predictions')
 
 
-def print_predictions(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
+def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
+    total_good_pred = 0
     total_win_pred = 0
+    total_lose_pred = 0
+
     total_true_win = 0
     total_false_win = 0
-    total_lose_pred = 0
     total_true_lose = 0
     total_false_lose = 0
-    total_good_pred = 0
     for i in range(len(y)):
         prediction = 'W' if predictions_rf[i] == 'W'\
                         and predictions_gb[i] == 'W'\
@@ -76,11 +81,19 @@ def print_predictions(y, predictions_rf, predictions_gb, predictions_lr, predict
                 total_false_lose += 1
             printError(f'{y[i]} ===> {prediction}')
 
-    printLog(f'\nTRUE WIN ACCURACY ===> {(total_true_win / total_win_pred) * 100}%  ({total_true_win})')
-    printLog(f'FALSE WIN ACCURACY ===> {(total_false_win / total_win_pred) * 100}%  ({total_false_win})\n')
-    printLog(f'TRUE LOSS ACCURACY ===> {(total_true_lose / total_lose_pred) * 100}%  ({total_true_lose})')
-    printLog(f'FALSE LOSS ACCURACY ===> {(total_false_lose / total_lose_pred) * 100}%  ({total_false_lose})\n')        
-    printLog(f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct')
+    final_stats = (
+            f'\nTRUE WIN ACCURACY ===> {(total_true_win / total_win_pred) * 100}%  ({total_true_win})'
+            f'\nFALSE WIN ACCURACY ===> {(total_false_win / total_win_pred) * 100}%  ({total_false_win})'
+            f'\nTRUE LOSS ACCURACY ===> {(total_true_lose / total_lose_pred) * 100}%  ({total_true_lose})'
+            f'\nFALSE LOSS ACCURACY ===> {(total_false_lose / total_lose_pred) * 100}%  ({total_false_lose})\n'
+            f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct'
+    )
+    return final_stats
+#    printLog(f'\nTRUE WIN ACCURACY ===> {(total_true_win / total_win_pred) * 100}%  ({total_true_win})')
+#    printLog(f'FALSE WIN ACCURACY ===> {(total_false_win / total_win_pred) * 100}%  ({total_false_win})\n')
+#    printLog(f'TRUE LOSS ACCURACY ===> {(total_true_lose / total_lose_pred) * 100}%  ({total_true_lose})')
+#    printLog(f'FALSE LOSS ACCURACY ===> {(total_false_lose / total_lose_pred) * 100}%  ({total_false_lose})\n')        
+#    printLog(f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct')
 
 
 def make_test_predictions(dataframe, currency_pair):
@@ -93,12 +106,12 @@ def make_test_predictions(dataframe, currency_pair):
     printLog('Done')
 
     printLog('Loading models...')
-    random_forest = joblib.load(f'models/random_forest_model_{currency_pair}.pkl')
-    gradient_boosting = joblib.load(f'models/gradient_boosting_{currency_pair}.pkl')
-    logreg = joblib.load(f'models/logreg_{currency_pair}.pkl')
-    mlp = joblib.load(f'models/mlp_{currency_pair}.pkl')
-    xgb = joblib.load(f'models/xgb_{currency_pair}.pkl')
-    label_encoder = joblib.load(f'models/xgb_label_encoder_{currency_pair}.pkl')
+    random_forest = joblib.load(f'models/architectures/random_forest_model_{currency_pair}.pkl')
+    gradient_boosting = joblib.load(f'models/architectures/gradient_boosting_{currency_pair}.pkl')
+    logreg = joblib.load(f'models/architectures/logreg_{currency_pair}.pkl')
+    mlp = joblib.load(f'models/architectures/mlp_{currency_pair}.pkl')
+    xgb = joblib.load(f'models/architectures/xgb_{currency_pair}.pkl')
+    label_encoder = joblib.load(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl')
     printLog('Done')
 
     printLog('Predicting...')
@@ -109,17 +122,33 @@ def make_test_predictions(dataframe, currency_pair):
     predictions_xgb = label_encoder.inverse_transform(xgb.predict(X))
     printLog('Done\n')
 
-    print_predictions(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
+    return predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
+    
 
 
 if __name__ == '__main__':
     try :
         args = parsing()
+        pred_stats = {}
         if args.EURUSD is not None:
+            printLog('\n=============================================================')
+            printLog('||                          EURUSD                          ||')
+            printLog('=============================================================')
             dataframe = pd.read_csv(args.EURUSD, index_col=False)
-            if len(dataframe.columns) < 36:
-                dataframe = preprocessing_test(args, dataframe)
-            make_test_predictions(dataframe, 'EURUSD')
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['EURUSD'] = make_test_predictions(dataframe, 'EURUSD')
+
+        if args.GBPUSD is not None:
+            printLog('\n=============================================================')
+            printLog('||                          GBPUSD                          ||')
+            printLog('=============================================================')
+            dataframe = pd.read_csv(args.GBPUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['GBPUSD'] = make_test_predictions(dataframe, 'EURUSD')
+
+        for currency in pred_stats.keys():
+            printLog(f'\n\n==============   {currency}   ==============')
+            printLog(f'{pred_stats[currency]}')
 
     except Exception as error:
         printError(error)

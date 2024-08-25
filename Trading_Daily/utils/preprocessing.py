@@ -30,16 +30,16 @@ def calc_labels(dataframe, args):
                 low = dataframe.iloc[idx, dataframe.columns.get_loc('LOW')]
   
                 if low <= stop_loss or datetime > datetime_range[-2]:
-                    print(f'{row["DATETIME"]} ==> loss')
+#                    print(f'{row["DATETIME"]} ==> loss')
                     dataframe.at[r, "LABEL"] = 'L'
                     break
                 
                 if high >= take_profit:
-                    print(f'{row["DATETIME"]} ==> win')
+#                    print(f'{row["DATETIME"]} ==> win')
                     dataframe.at[r, "LABEL"] = 'W'
                     break      
             else:
-                    print(f'{row["DATETIME"]} ==> loss')
+#                    print(f'{row["DATETIME"]} ==> loss')
                     dataframe.at[r, "LABEL"] = 'L'
                     break
     dataframe.insert(1, 'LABEL', dataframe.pop('LABEL'))
@@ -65,8 +65,7 @@ def preprocessing_train(currency_pair, args, datafile):
     scaled_features = scaler.fit_transform(features_df)
     scaled_features_df = pd.DataFrame(scaled_features, columns=features)
     dataframe[features] = scaled_features_df
-    dataframe.to_csv(f'data/{currency_pair}/{currency_pair}_preprocessed.csv', index=False)
-
+    return dataframe
 
 def preprocessing_test(args, dataframe):
     dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])

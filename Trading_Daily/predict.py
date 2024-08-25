@@ -86,8 +86,8 @@ if __name__ == '__main__':
         args = parsing()
         if args.EURUSD is not None:
             dataframe = pd.read_csv(args.EURUSD, index_col=False)
-            if len(dataframe.columns) < 30:
-                dataframe = preprocessing_predict(args, dataframe)
+#            if len(dataframe.columns) < 30:
+            dataframe = preprocessing_predict(args, dataframe)
             make_predictions(dataframe, 'EURUSD')
 
     except Exception as error:

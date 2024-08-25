@@ -1,7 +1,7 @@
 import os
-import subprocess
 import argparse as ap
 
+from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
 from utils.tools import printLog, printError
 
@@ -11,7 +11,9 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-EURUSD', type=str, help='EURUSD datafile')
+    parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
+    parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
+
     parser.add_argument('-lifespan', type=int, default=10, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
@@ -29,25 +31,25 @@ def parsing():
     return parser.parse_args()
 
 
-def trainModels(datafile, currency_pair):
-    printLog('TRAINING GRADIENT BOOSTING MODEL...')
-    subprocess.run(["python", "models/GradientBoosting.py"] + [datafile] + [currency_pair])
+def trainModels(dataframe, currency_pair):
+    printLog('\nTRAINING GRADIENT BOOSTING MODEL...')
+    GradientBoosting(dataframe, currency_pair)
     printLog('GRADIENT BOOSTING MODEL DONE\n')
 
     printLog('TRAINING MLP MODEL...')
-    subprocess.run(["python", "models/MLP.py"] + [datafile] + [currency_pair])
+    MLP(dataframe, currency_pair)
     printLog('MLP MODEL DONE\n')
 
     printLog('TRAINING LOGISTIC REGRESSION MODEL...')
-    subprocess.run(["python", "models/LogReg.py"] + [datafile] + [currency_pair])
+    LogReg(dataframe, currency_pair)
     printLog('LOGISTIC REGRESSION MODEL DONE\n')
 
     printLog('TRAINING RANDOM FOREST CLASSIFIER MODEL...')
-    subprocess.run(["python", "models/RandomForestClassifier.py"] + [datafile] + [currency_pair])
+    RFClassifier(dataframe, currency_pair)
     printLog('RANDOM FOREST CLASSIFIER MODEL DONE\n')
 
     printLog('TRAINING XGB MODEL...')
-    subprocess.run(["python", "models/XGB.py"] + [datafile] + [currency_pair])
+    XGB(dataframe, currency_pair)
     printLog('XGB MODEL DONE\n')
 
 
@@ -55,9 +57,19 @@ if __name__ == '__main__':
     try:
         args = parsing()
         if args.EURUSD is not None:
-#            if not os.path.exists('data/EURUSD/EURUSD_preprocessed.csv'):
-            preprocessing_train('EURUSD', args, args.EURUSD)
-            trainModels('data/EURUSD/EURUSD_preprocessed.csv', 'EURUSD')
+            printLog('\n=============================================================')
+            printLog('||                          EURUSD                          ||')
+            printLog('=============================================================')
+            dataframe = preprocessing_train('EURUSD', args, args.EURUSD)
+            trainModels(dataframe, 'EURUSD')
+        
+        if args.GBPUSD is not None:
+            printLog('\n=============================================================')
+            printLog('||                          GBPUSD                          ||')
+            printLog('=============================================================')
+            dataframe = preprocessing_train('GBPUSD', args, args.GBPUSD)
+            trainModels(dataframe, 'GBPUSD')
+
 
     except Exception as error:
         print(error)

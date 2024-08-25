@@ -27,10 +27,10 @@ clean:
 	@rm -rf virtualEnv
 	@echo "$(RED) ===> Done.$(RESET)"
 	@echo "$(RED) ===> resetting models...$(RESET)"
-	@rm -f srcs/models/*.pkl
+	@rm -f Trading_Daily/models/architectures/*.pkl
 	@echo "$(RED) ===> Done.$(RESET)"
-	@echo "$(RED) ===> removing preprocessed files...$(RESET)"
-	@rm -f srcs/data/EURUSD/EURUSD_preprocessed.csv
-	@echo "$(RED) ===> Done.$(RESET)"
+#	@echo "$(RED) ===> removing preprocessed files...$(RESET)"
+#	@rm -f srcs/data/EURUSD/EURUSD_preprocessed.csv
+#	@echo "$(RED) ===> Done.$(RESET)"
 
 .PHONY: all venv install clean
