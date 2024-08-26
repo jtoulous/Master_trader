@@ -21,11 +21,9 @@ def calc_labels(dataframe, args):
 
         for datetime in datetime_range:
             idx = dataframe['DATETIME'].searchsorted(datetime)
-            breakpoint()
             if idx < len(dataframe) and dataframe.loc[idx, 'DATETIME'] == datetime:
                 high = dataframe.iloc[idx, dataframe.columns.get_loc('HIGH')]
                 low = dataframe.iloc[idx, dataframe.columns.get_loc('LOW')]
-                breakpoint()
                 if low <= stop_loss or datetime > datetime_range[-2]:
 #                    print(f'{row["DATETIME"]} ==> loss')
                     dataframe.at[r, "LABEL"] = 'L'

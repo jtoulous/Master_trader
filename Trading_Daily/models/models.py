@@ -20,33 +20,28 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 def GradientBoosting(df, currency_pair):
         print(f'{Fore.GREEN} ===> Reading data...')
-        dataframe = df.copy()
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        y = dataframe['LABEL']
-        X = dataframe[features]
+        X, y = GetXnY(df.copy())
         print(' ===> Done')
 
-        print(f' ===> Splitting data...')
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(' ===> Done')
+#        print(f' ===> Splitting data...')
+#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
-        X_train_resampled, y_train_resampled = over_sampler.fit_resample(X_train, y_train)
+        X_resampled, y_resampled = over_sampler.fit_resample(X, y)
         print(' ===> Done')
 
         model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, random_state=42)
  
         print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_train_resampled, y_train_resampled, cv=5)
+        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
         print(f'   ==> Cross-Validation Scores: {scores}')
         print(f'   ==> Average Accuracy: {scores.mean()}')
         print(' ===> Done')
 
         print(' ===> Training...')
-        model.fit(X_train_resampled, y_train_resampled)
+        model.fit(X_resampled, y_resampled)
         print(' ===> Done')
       
         print(' ===> Saving model...')
@@ -56,33 +51,28 @@ def GradientBoosting(df, currency_pair):
 
 def LogReg(df, currency_pair):
         print(f'{Fore.GREEN} ===> Reading data...')
-        dataframe = df.copy()
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        y = dataframe['LABEL']
-        X = dataframe[features]
+        X, y = GetXnY(df.copy())
         print(' ===> Done')
         
-        print(' ===> Splitting data...')
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(' ===> Done')
+#        print(' ===> Splitting data...')
+#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#        print(' ===> Done')
 
         print(' ===> Under sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
-        X_train_resampled, y_train_resampled = over_sampler.fit_resample(X_train, y_train)
+        X_resampled, y_resampled = over_sampler.fit_resample(X, y)
         print(' ===> Done')
 
         model = LogisticRegression(max_iter=1000)
         
         print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_train_resampled, y_train_resampled, cv=5)
+        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
         print(f'   ==> Cross-Validation Scores: {scores}')
         print(f'   ==> Average Accuracy: {scores.mean()}')
         print(' ===> Done')
         
         print(' ===> Training logistic regression...')
-        model.fit(X_train_resampled, y_train_resampled)
+        model.fit(X_resampled, y_resampled)
         print(' ===> Done')
       
         print(' ===> Saving model...')
@@ -92,21 +82,16 @@ def LogReg(df, currency_pair):
 
 def MLP(df, currency_pair):
         print(f'{Fore.GREEN} ===> Reading data...')
-        dataframe = df.copy()
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        y = dataframe['LABEL']
-        X = dataframe[features]
+        X, y = GetXnY(df.copy())
         print(' ===> Done')
         
-        print(f' ===> Splitting data...')
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(' ===> Done')
+#        print(f' ===> Splitting data...')
+#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
-        X_train_resampled, y_train_resampled = over_sampler.fit_resample(X_train, y_train)
+        X_resampled, y_resampled = over_sampler.fit_resample(X, y)
         print(' ===> Done')
 
         model = MLPClassifier(
@@ -124,13 +109,13 @@ def MLP(df, currency_pair):
         )
         
         print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_train_resampled, y_train_resampled, cv=5)
+        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
         print(f'   ==> Cross-Validation Scores: {scores}')
         print(f'   ==> Average Accuracy: {scores.mean()}')
         print(' ===> Done')
         
         print(' ===> Training MLP...')
-        model.fit(X_train_resampled, y_train_resampled)
+        model.fit(X_resampled, y_resampled)
         print(' ===> Done')
       
         print(' ===> Saving model...')
@@ -140,33 +125,28 @@ def MLP(df, currency_pair):
 
 def RFClassifier(df, currency_pair):
         print(f'{Fore.GREEN} ===> Reading data...')
-        dataframe = df.copy()
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        y = dataframe['LABEL']
-        X = dataframe[features]
+        X, y = GetXnY(df.copy())
         print(' ===> Done')
 
-        print(' ===> Splitting data...')
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(' ===> Done')
+#        print(' ===> Splitting data...')
+#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
-        X_train_resampled, y_train_resampled = over_sampler.fit_resample(X_train, y_train)
+        X_resampled, y_resampled = over_sampler.fit_resample(X, y)
         print(' ===> Done')
 
         model = RandomForestClassifier(n_estimators=100, random_state=42)
 
         print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_train_resampled, y_train_resampled, cv=5)
+        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
         print(f'   ==> Cross-Validation Scores: {scores}')
         print(f'   ==> Average Accuracy: {scores.mean()}')
         print(' ===> Done')
 
         print(' ===> Training forest classifier...')
-        model.fit(X_train_resampled, y_train_resampled)
+        model.fit(X_resampled, y_resampled)
         print(' ===> Done')
       
         print(' ===> Saving model...')
@@ -176,12 +156,7 @@ def RFClassifier(df, currency_pair):
 
 def XGB(df, currency_pair):
         print(f'{Fore.GREEN} ===> Reading data...')
-        dataframe = df.copy()
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        y = dataframe['LABEL']
-        X = dataframe[features]
+        X, y = GetXnY(df.copy())
         print(' ===> Done')
         
         print(' ===> Encoding labels...')
@@ -189,28 +164,39 @@ def XGB(df, currency_pair):
         y = label_encoder.fit_transform(y) 
         print(' ===> Done')
 
-        print(' ===> Splitting data...')
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        print(' ===> Done')
+#        print(' ===> Splitting data...')
+#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
-        X_train_resampled, y_train_resampled = over_sampler.fit_resample(X_train, y_train)
+        X_resampled, y_resampled = over_sampler.fit_resample(X, y)
         print(' ===> Done')
 
         model = xgb.XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
         
         print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_train_resampled, y_train_resampled, cv=5)
+        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
         print(f'   ==> Cross-Validation Scores: {scores}')
         print(f'   ==> Average Accuracy: {scores.mean()}')
         print(' ===> Done')
 
         print(' ===> Training xgb...')
-        model.fit(X_train_resampled, y_train_resampled)
+        model.fit(X_resampled, y_resampled)
         print(' ===> Done')
       
         print(' ===> Saving model...')
         joblib.dump(model, f'models/architectures/xgb_{currency_pair}.pkl')
         joblib.dump(label_encoder, f'models/architectures/xgb_label_encoder_{currency_pair}.pkl')
         print(f' ===> Done{Style.RESET_ALL}')
+
+
+def GetXnY(dataframe):
+        features = list(dataframe.columns)
+        features.remove('LABEL')
+        features.remove('DATETIME')
+        features.remove('HIGH')
+        features.remove('LOW')
+        features.remove('CLOSE')
+
+        return dataframe[features], dataframe['LABEL']

@@ -4,7 +4,7 @@ import pandas as pd
 import joblib
 
 from utils.preprocessing import preprocessing_test
-from utils.tools import printLog, printError
+from utils.tools import printLog, printError, printHeader
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -13,6 +13,7 @@ def parsing():
     )
     parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
     parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
+    parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -89,11 +90,6 @@ def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predict
             f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct'
     )
     return final_stats
-#    printLog(f'\nTRUE WIN ACCURACY ===> {(total_true_win / total_win_pred) * 100}%  ({total_true_win})')
-#    printLog(f'FALSE WIN ACCURACY ===> {(total_false_win / total_win_pred) * 100}%  ({total_false_win})\n')
-#    printLog(f'TRUE LOSS ACCURACY ===> {(total_true_lose / total_lose_pred) * 100}%  ({total_true_lose})')
-#    printLog(f'FALSE LOSS ACCURACY ===> {(total_false_lose / total_lose_pred) * 100}%  ({total_false_lose})\n')        
-#    printLog(f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct')
 
 
 def make_test_predictions(dataframe, currency_pair):
@@ -101,6 +97,9 @@ def make_test_predictions(dataframe, currency_pair):
     features = list(dataframe.columns)
     features.remove('LABEL')
     features.remove('DATETIME')
+    features.remove('HIGH')
+    features.remove('LOW')
+    features.remove('CLOSE')
     X = dataframe[features]
     y = dataframe['LABEL']
     printLog('Done')
@@ -131,20 +130,23 @@ if __name__ == '__main__':
         args = parsing()
         pred_stats = {}
         if args.EURUSD is not None:
-            printLog('\n=============================================================')
-            printLog('||                          EURUSD                          ||')
-            printLog('=============================================================')
+            printHeader('EURUSD')
             dataframe = pd.read_csv(args.EURUSD, index_col=False)
             dataframe = preprocessing_test(args, dataframe)
             pred_stats['EURUSD'] = make_test_predictions(dataframe, 'EURUSD')
 
         if args.GBPUSD is not None:
-            printLog('\n=============================================================')
-            printLog('||                          GBPUSD                          ||')
-            printLog('=============================================================')
+            printHeader('GBPUSD')
             dataframe = pd.read_csv(args.GBPUSD, index_col=False)
             dataframe = preprocessing_test(args, dataframe)
-            pred_stats['GBPUSD'] = make_test_predictions(dataframe, 'EURUSD')
+            pred_stats['GBPUSD'] = make_test_predictions(dataframe, 'GBPUSD')
+
+        if args.BTCUSD is not None:
+            printHeader('BTCUSD')
+            dataframe = pd.read_csv(args.BTCUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['BTCUSD'] = make_test_predictions(dataframe, 'BTCUSD')
+
 
         for currency in pred_stats.keys():
             printLog(f'\n\n==============   {currency}   ==============')

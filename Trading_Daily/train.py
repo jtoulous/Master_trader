@@ -13,6 +13,7 @@ def parsing():
     )
     parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
     parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
+    parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -65,6 +66,11 @@ if __name__ == '__main__':
             printHeader('GBPUSD')
             dataframe = preprocessing_train('GBPUSD', args, args.GBPUSD)
             trainModels(dataframe, 'GBPUSD')
+
+        if args.BTCUSD is not None:
+            printHeader('BTCUSD')
+            dataframe = preprocessing_train('BTCUSD', args, args.BTCUSD)
+            trainModels(dataframe, 'BTCUSD')
 
 
     except Exception as error:
