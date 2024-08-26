@@ -8,35 +8,36 @@ from .indicators import calc_indicators
 
 def calc_labels(dataframe, args):
     printLog('Defining labels...')
-    dataframe = dataframe.assign(LABEL=None)
-    
+    dataframe = dataframe.assign(LABEL=None)  
     for r, row in dataframe.iterrows():
         datetime_range = pd.date_range(
             start=row['DATETIME'] + pd.Timedelta(days=1),
             end=row['DATETIME'] + pd.Timedelta(days=args.lifespan),
             freq='1D'
         )
-        take_profit = row['OPEN'] + (row['ATR'] * args.profit )
+        take_profit = row['OPEN'] + (row['ATR'] * args.profit)
         stop_loss = row['OPEN'] - (row['ATR'] * args.risk)
+        label_assigned = False
 
         for datetime in datetime_range:
             idx = dataframe['DATETIME'].searchsorted(datetime)
+
             if idx < len(dataframe) and dataframe.loc[idx, 'DATETIME'] == datetime:
                 high = dataframe.iloc[idx, dataframe.columns.get_loc('HIGH')]
                 low = dataframe.iloc[idx, dataframe.columns.get_loc('LOW')]
-                if low <= stop_loss or datetime > datetime_range[-2]:
-#                    print(f'{row["DATETIME"]} ==> loss')
+
+                if low <= stop_loss:
                     dataframe.at[r, "LABEL"] = 'L'
-                    break
-                
+                    label_assigned = True
+                    break  
+
                 if high >= take_profit:
-#                    print(f'{row["DATETIME"]} ==> win')
                     dataframe.at[r, "LABEL"] = 'W'
-                    break      
-            else:
-#                    print(f'{row["DATETIME"]} ==> loss')
-                    dataframe.at[r, "LABEL"] = 'L'
-                    break
+                    label_assigned = True
+                    break  
+
+        if not label_assigned:
+            dataframe.at[r, "LABEL"] = 'L'
     dataframe.insert(1, 'LABEL', dataframe.pop('LABEL'))
     printLog('Done')
     return dataframe
