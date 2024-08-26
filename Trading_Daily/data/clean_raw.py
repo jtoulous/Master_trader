@@ -19,9 +19,11 @@ if __name__ == '__main__':
             'Open': 'OPEN',
             'High': 'HIGH',
             'Low': 'LOW',
-            'Close': 'CLOSE'
+            'Close': 'CLOSE',
+            'Volume': 'VOLUME'
         }, inplace=True)
         
+        df = df.drop(columns=['Adj Close'])
         df['DATETIME'] = pd.to_datetime(df['DATETIME'])
         df_sorted = df.sort_values(by='DATETIME')
         df_sorted.to_csv(args.datafile, index=False)

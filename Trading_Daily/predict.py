@@ -3,6 +3,7 @@ import argparse as ap
 import pandas as pd
 import joblib
 
+from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.tools import printLog, printError
 
@@ -11,10 +12,8 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-EURUSD', type=str, help='EURUSD datafile')
-    parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
-    parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
+    parser.add_argument('-BTCUSD', action='store_true', help='BTCUSD')
+    
     parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
     parser.add_argument('-ema', type=int, default=50, help='periods used for calculating EMA')
     parser.add_argument('-rsi', type=int, default=14, help='periods used for calculating RSI')
@@ -27,18 +26,18 @@ def parsing():
     parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-    error_check(args)
+    if args.BTCUSD is not None:    
+        error_check('BTCUSD')
     return args
 
-def error_check(args):
-    if args.EURUSD is not None:
-        if not os.path.exists('models/random_forest_model_EURUSD.pkl')\
-        or not os.path.exists('models/gradient_boosting_EURUSD.pkl')\
-        or not os.path.exists('models/logreg_EURUSD.pkl')\
-        or not os.path.exists('models/mlp_EURUSD.pkl')\
-        or not os.path.exists('models/xgb_EURUSD.pkl')\
-        or not os.path.exists('models/xgb_label_encoder_EURUSD.pkl'):
-            raise Exception('error: train EURUSD models before making EURUSD predictions')
+def error_check(currency):
+    if not os.path.exists(f'models/architectures/random_forest_model_{currency}.pkl')\
+    or not os.path.exists(f'models/architectures/gradient_boosting_{currency}.pkl')\
+    or not os.path.exists(f'models/architectures/logreg_{currency}.pkl')\
+    or not os.path.exists(f'models/architectures/mlp_{currency}.pkl')\
+    or not os.path.exists(f'models/architectures/xgb_{currency}.pkl')\
+    or not os.path.exists(f'models/architectures/xgb_label_encoder_{currency}.pkl'):
+        raise Exception(f'error: train {currency} models before making {currency} predictions')
 
 
 def print_predictions(dataframe, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
@@ -84,11 +83,52 @@ def make_predictions(dataframe, currency_pair):
 if __name__ == '__main__':
     try:    
         args = parsing()
-        if args.EURUSD is not None:
-            dataframe = pd.read_csv(args.EURUSD, index_col=False)
-#            if len(dataframe.columns) < 30:
+        if args.BTCUSD is True:
+            dataframe = pd.read_csv('data/BTCUSD/BTCUSD(D).csv')
+            new_row = pd.DataFrame({
+                'DATETIME': [None],
+                'OPEN': [None],
+                'HIGH': [None],
+                'LOW': [None],
+                'CLOSE': [None],
+                'VOLUME': [None]
+            })
+            dataframe = pd.concat([dataframe, new_row], ignore_index=True)
+            dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
+            dataframe = dataframe.sort_values(by='DATETIME')
+            
+            dataframe.at[dataframe.index[-1], 'OPEN'] = dataframe.iloc[-2]['CLOSE']
+            dataframe.at[dataframe.index[-1], 'DATETIME'] = dataframe.iloc[-2]['DATETIME'] + pd.DateOffset(days=1)
             dataframe = preprocessing_predict(args, dataframe)
-            make_predictions(dataframe, 'EURUSD')
+            breakpoint()
+#            day_open = float(input('Open: '))
+
+#            new_row = pd.DataFrame({
+#                'DATETIME': [None],
+#                'OPEN': [day_open],
+#                'HIGH': [None],
+#                'LOW': [None],
+#                'CLOSE': [None],
+#                'ATR': [None],
+#                'EMA': [None],
+#                'RSI': [None],
+#                'MACD_LINE': [None],
+#                'MACD_SIGNAL': [None],
+#                'SMA': [None],
+#                'WMA': [None],
+#                'Hilbert_Transform': [None],
+#                'PPO_LINE': [None],
+#                'PPO_SIGNAL': [None],
+#                'PPO_LINE': [None],
+#                'ROC': [None]
+#            })
+            
+            
 
     except Exception as error:
         printError(error)
+
+
+
+
+##     FAIRE LES FONCTIONS POUR CALCULER LES INDICATEURS DE LA DERNIERE ENTREE SEULEMENT

@@ -89,11 +89,11 @@ def preprocessing_predict(args, dataframe):
     dataframe  = calc_indicators(dataframe, args) 
     dataframe.bfill(inplace=True)
 
-    scaler = StandardScaler()
-    features = list(dataframe.columns)
-    features.remove('DATETIME')
-    features_df = dataframe[features]
-    scaled_features = scaler.fit_transform(features_df)
-    scaled_features_df = pd.DataFrame(scaled_features, columns=features)
-    dataframe[features] = scaled_features_df
+#    scaler = StandardScaler()
+#    features = list(dataframe.columns)
+#    features.remove('DATETIME')
+#    features_df = dataframe[features]
+#    scaled_features = scaler.fit_transform(features_df)
+#    scaled_features_df = pd.DataFrame(scaled_features, columns=features)
+#   dataframe[features] = scaled_features_df
     return dataframe

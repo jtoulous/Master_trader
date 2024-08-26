@@ -30,10 +30,12 @@ def parsing():
     parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-    if args.EURUSD is not None:    
-        error_check('EURUSD')
+    if args.BTCUSD is not None:    
+        error_check('BTCUSD')
     if args.GBPUSD is not None:    
         error_check('GBPUSD')
+    if args.EURUSD is not None:    
+        error_check('EURUSD')
     return args
 
 def error_check(currency_pair):
@@ -100,6 +102,7 @@ def make_test_predictions(dataframe, currency_pair):
     features.remove('HIGH')
     features.remove('LOW')
     features.remove('CLOSE')
+    features.remove('VOLUME')
     X = dataframe[features]
     y = dataframe['LABEL']
     printLog('Done')

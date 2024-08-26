@@ -50,20 +50,20 @@ def RSI(dataframe, periods):
     printLog(f'Done')
     return dataframe
 
-def STO(dataframe, periods):
-    printLog(f'Calculating STO...')
-    k_periods = periods[0]
-    d_periods = periods[1]
-
-    low_min = dataframe['LOW'].rolling(window=k_periods, min_periods=1).min()
-    high_max = dataframe['HIGH'].rolling(window=k_periods,min_periods=1).max()
-    K = ((dataframe['CLOSE'] - low_min) / (high_max - low_min)) * 100
-    D = K.rolling(window=d_periods, min_periods=1).mean()
-
-    dataframe['K(sto)'] = K.bfill()
-    dataframe['D(sto)'] = D.bfill()
-    printLog('Done')
-    return dataframe
+#def STO(dataframe, periods):
+#    printLog(f'Calculating STO...')
+#    k_periods = periods[0]
+#    d_periods = periods[1]
+#
+#    low_min = dataframe['LOW'].rolling(window=k_periods, min_periods=1).min()
+#    high_max = dataframe['HIGH'].rolling(window=k_periods,min_periods=1).max()
+#    K = ((dataframe['CLOSE'] - low_min) / (high_max - low_min)) * 100
+#    D = K.rolling(window=d_periods, min_periods=1).mean()
+#
+#    dataframe['K(sto)'] = K.bfill()
+#    dataframe['D(sto)'] = D.bfill()
+#    printLog('Done')
+#    return dataframe
 
 def SMA(dataframe, periods):
     printLog(f'Calculating SMA...')
@@ -80,56 +80,56 @@ def WMA(dataframe, periods):
     printLog('Done')
     return dataframe
 
-def DMI(dataframe, periods):
-    printLog(f'Calculating DMI...')
-    prev_row = None
-    dm_plus = []
-    dm_minus = []
+#def DMI(dataframe, periods):
+#    printLog(f'Calculating DMI...')
+#    prev_row = None
+#    dm_plus = []
+#    dm_minus = []
+#
+#    for idx, row in dataframe.iterrows():
+#        if prev_row is not None:
+#            dm_plus_val = row['HIGH'] - prev_row['HIGH'] \
+#                            if row['HIGH'] - prev_row['HIGH'] > prev_row['LOW'] - row['LOW'] \
+#                            and row['HIGH'] - prev_row['HIGH'] > 0 \
+#                            else 0
+#            dm_minus_val = prev_row['LOW'] - row['LOW'] \
+#                            if prev_row['LOW'] - row['LOW'] > row['HIGH'] - prev_row['HIGH'] \
+#                            and prev_row['LOW'] - row['LOW'] > 0 \
+#                            else 0
+#        else:
+#            dm_plus_val = 0
+#            dm_minus_val = 0
+#        dm_plus.append(dm_plus_val)
+#        dm_minus.append(dm_minus_val)
+#        prev_row = row
+#
+#    dm_plus = pd.Series(dm_plus).bfill()
+#    dm_minus = pd.Series(dm_minus).bfill()
+#    dm_diff = abs(dm_plus - dm_minus)
+#    dm_sum = dm_plus + dm_minus
+#    dx = dm_diff / dm_sum
+#    adx = dx.rolling(window=periods, min_periods=1).mean().bfill()
+#    
+#    dataframe['DM+'] = dm_plus
+#    dataframe['DM-'] = dm_minus
+#    dataframe['ADX'] = adx
+#    printLog(f'Done')
+#    return dataframe
 
-    for idx, row in dataframe.iterrows():
-        if prev_row is not None:
-            dm_plus_val = row['HIGH'] - prev_row['HIGH'] \
-                            if row['HIGH'] - prev_row['HIGH'] > prev_row['LOW'] - row['LOW'] \
-                            and row['HIGH'] - prev_row['HIGH'] > 0 \
-                            else 0
-            dm_minus_val = prev_row['LOW'] - row['LOW'] \
-                            if prev_row['LOW'] - row['LOW'] > row['HIGH'] - prev_row['HIGH'] \
-                            and prev_row['LOW'] - row['LOW'] > 0 \
-                            else 0
-        else:
-            dm_plus_val = 0
-            dm_minus_val = 0
-        dm_plus.append(dm_plus_val)
-        dm_minus.append(dm_minus_val)
-        prev_row = row
-
-    dm_plus = pd.Series(dm_plus).bfill()
-    dm_minus = pd.Series(dm_minus).bfill()
-    dm_diff = abs(dm_plus - dm_minus)
-    dm_sum = dm_plus + dm_minus
-    dx = dm_diff / dm_sum
-    adx = dx.rolling(window=periods, min_periods=1).mean().bfill()
-    
-    dataframe['DM+'] = dm_plus
-    dataframe['DM-'] = dm_minus
-    dataframe['ADX'] = adx
-    printLog(f'Done')
-    return dataframe
-
-def Bollinger_bands(dataframe, args):
-    printLog(f'Calculating Bollingers bands...')
-    periods = args[0]
-    num_std_dev = args[1]
-
-    TMP_SMA = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
-    TMP_STD = dataframe['CLOSE'].rolling(window=periods, min_periods=1).std()
-    u_band = TMP_SMA + (TMP_STD * num_std_dev)
-    l_band = TMP_SMA - (TMP_STD * num_std_dev)
-
-    dataframe['U-BAND'] = u_band.bfill()
-    dataframe['L-BAND'] = l_band.bfill()
-    printLog('Done')
-    return dataframe
+#def Bollinger_bands(dataframe, args):
+#    printLog(f'Calculating Bollingers bands...')
+#    periods = args[0]
+#    num_std_dev = args[1]
+#
+#    TMP_SMA = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
+#    TMP_STD = dataframe['CLOSE'].rolling(window=periods, min_periods=1).std()
+#    u_band = TMP_SMA + (TMP_STD * num_std_dev)
+#    l_band = TMP_SMA - (TMP_STD * num_std_dev)
+#
+#    dataframe['U-BAND'] = u_band.bfill()
+#    dataframe['L-BAND'] = l_band.bfill()
+#    printLog('Done')
+#    return dataframe
 
 def MACD(dataframe, args):
     printLog(f'Calculating MACD...')
@@ -157,16 +157,16 @@ def Hilberts_transform(dataframe):
     printLog('Done')
     return dataframe
 
-def CCI(dataframe, periods):
-    printLog('Calculating CCI...')
-    TP = (dataframe['HIGH'] + dataframe['LOW'] + dataframe['CLOSE']) / 3
-    SMA_TP = TP.rolling(window=periods, min_periods=1).mean()
-    MD = TP.rolling(window=periods, min_periods=1).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
-
-    CCI = (TP -SMA_TP) / (0.015 * MD)
-    dataframe['CCI'] = CCI.bfill()
-    printLog('Done')
-    return dataframe
+#def CCI(dataframe, periods):
+#    printLog('Calculating CCI...')
+#    TP = (dataframe['HIGH'] + dataframe['LOW'] + dataframe['CLOSE']) / 3
+#    SMA_TP = TP.rolling(window=periods, min_periods=1).mean()
+#    MD = TP.rolling(window=periods, min_periods=1).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
+#
+#    CCI = (TP -SMA_TP) / (0.015 * MD)
+#    dataframe['CCI'] = CCI.bfill()
+#    printLog('Done')
+#    return dataframe
 
 def PPO(dataframe, periods):
     printLog('Calculating PPO...')
@@ -196,9 +196,9 @@ def feature_engineering(dataframe):
     dataframe['ATR_Lagged'] = dataframe['ATR'].shift(1).bfill()
     dataframe['EMA_Lagged'] = dataframe['EMA'].shift(1).bfill()
     dataframe['RSI_Lagged'] = dataframe['RSI'].shift(1).bfill()
-    dataframe['Momentum'] = dataframe['CLOSE'] - dataframe['CLOSE'].shift(1).bfill()
+#    dataframe['Momentum'] = dataframe['CLOSE'] - dataframe['CLOSE'].shift(1).bfill()
     dataframe['MACD_Difference'] = dataframe['MACD_LINE'] - dataframe['MACD_SIGNAL'].bfill()
-    dataframe['Bollinger_Width'] = dataframe['U-BAND'] - dataframe['L-BAND'].bfill()
+#    dataframe['Bollinger_Width'] = dataframe['U-BAND'] - dataframe['L-BAND'].bfill()
     dataframe['EMA_SMA_Ratio'] = dataframe['EMA'] / dataframe['SMA'].bfill()
     printLog('Done')
     return dataframe
@@ -208,14 +208,14 @@ def calc_indicators(dataframe, args):
     dataframe = ATR(dataframe, args.atr)
     dataframe = EMA(dataframe, args.ema)
     dataframe = RSI(dataframe, args.rsi)
-    dataframe = STO(dataframe, args.sto)
+#    dataframe = STO(dataframe, args.sto)
     dataframe = SMA(dataframe, args.sma)
     dataframe = WMA(dataframe, args.wma)
-    dataframe = DMI(dataframe, args.dmi)
-    dataframe = Bollinger_bands(dataframe, args.blg)
+#    dataframe = DMI(dataframe, args.dmi)
+#    dataframe = Bollinger_bands(dataframe, args.blg)
     dataframe = MACD(dataframe, args.macd)
     dataframe = Hilberts_transform(dataframe)
-    dataframe = CCI(dataframe, args.cci)
+#    dataframe = CCI(dataframe, args.cci)
     dataframe = PPO(dataframe, args.ppo)
     dataframe = ROC(dataframe)
     dataframe = feature_engineering(dataframe)

@@ -198,5 +198,6 @@ def GetXnY(dataframe):
         features.remove('HIGH')
         features.remove('LOW')
         features.remove('CLOSE')
+        features.remove('VOLUME')
 
         return dataframe[features], dataframe['LABEL']

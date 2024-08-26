@@ -11,8 +11,8 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
-    parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
+#    parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
+#    parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
     parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
@@ -57,15 +57,15 @@ def trainModels(dataframe, currency_pair):
 if __name__ == '__main__':
     try:
         args = parsing()
-        if args.EURUSD is not None:
-            printHeader('EURUSD')
-            dataframe = preprocessing_train('EURUSD', args, args.EURUSD)
-            trainModels(dataframe, 'EURUSD')
-        
-        if args.GBPUSD is not None:
-            printHeader('GBPUSD')
-            dataframe = preprocessing_train('GBPUSD', args, args.GBPUSD)
-            trainModels(dataframe, 'GBPUSD')
+#        if args.EURUSD is not None:
+#            printHeader('EURUSD')
+#            dataframe = preprocessing_train('EURUSD', args, args.EURUSD)
+#            trainModels(dataframe, 'EURUSD')
+#        
+#        if args.GBPUSD is not None:
+#            printHeader('GBPUSD')
+#            dataframe = preprocessing_train('GBPUSD', args, args.GBPUSD)
+#            trainModels(dataframe, 'GBPUSD')
 
         if args.BTCUSD is not None:
             printHeader('BTCUSD')
