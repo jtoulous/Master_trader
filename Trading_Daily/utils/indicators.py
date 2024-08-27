@@ -191,6 +191,9 @@ def ROC(dataframe):
     printLog('Done')
     return dataframe
 
+
+
+
 def feature_engineering(dataframe):
     printLog('Feature engineering...')
     dataframe['ATR_Lagged'] = dataframe['ATR'].shift(1).bfill()

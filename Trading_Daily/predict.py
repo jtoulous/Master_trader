@@ -13,7 +13,9 @@ def parsing():
         description='predictive model for trading'
     )
     parser.add_argument('-BTCUSD', action='store_true', help='BTCUSD')
-    
+
+    parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
     parser.add_argument('-ema', type=int, default=50, help='periods used for calculating EMA')
     parser.add_argument('-rsi', type=int, default=14, help='periods used for calculating RSI')
@@ -40,33 +42,40 @@ def error_check(currency):
         raise Exception(f'error: train {currency} models before making {currency} predictions')
 
 
-def print_predictions(dataframe, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
-    for idx, row in dataframe.iterrows():
-        prediction = 'W' if predictions_rf[idx] == 'W'\
-                        and predictions_gb[idx] == 'W'\
-                        and predictions_lr[idx] == 'W'\
-                        and predictions_xgb[idx] == 'W'\
-                        and predictions_mlp[idx] == 'W'\
-                        else 'L'
-        printLog(f'{row["DATETIME"]} ===> {prediction}')
+def print_predictions(stop_loss, take_profit, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
+        prediction = 'Win' if predictions_rf[0] == 'W'\
+                        and predictions_gb[0] == 'W'\
+                        and predictions_lr[0] == 'W'\
+                        and predictions_xgb[0] == 'W'\
+                        and predictions_mlp[0] == 'W'\
+                        else 'Lose'
+        printLog(f'=========   PREDICTION   =========')
+        printLog(f'====> {prediction}')
+        if prediction == 'Win':    
+            printLog(f'  SL ==> {stop_loss}')
+            printLog(f'  TP ==> {take_profit}')
 
 
-def make_predictions(dataframe, currency_pair):
-    printLog('Reading data...')
+def make_predictions(dataframe, currency_pair, stop_loss, take_profit):
+#    printLog('Reading data...')
     features = list(dataframe.columns)
     features.remove('DATETIME')
+    features.remove('HIGH')
+    features.remove('LOW')
+    features.remove('CLOSE')
+    features.remove('VOLUME')
     if 'LABEL' in features:
         features.remove('LABEL')
     X = dataframe[features]
-    printLog('Done')
+#    printLog('Done')
 
     printLog('Loading models...')
-    random_forest = joblib.load(f'models/random_forest_model_{currency_pair}.pkl')
-    gradient_boosting = joblib.load(f'models/gradient_boosting_{currency_pair}.pkl')
-    logreg = joblib.load(f'models/logreg_{currency_pair}.pkl')
-    mlp = joblib.load(f'models/mlp_{currency_pair}.pkl')
-    xgb = joblib.load(f'models/xgb_{currency_pair}.pkl')
-    label_encoder = joblib.load(f'models/xgb_label_encoder_{currency_pair}.pkl')
+    random_forest = joblib.load(f'models/architectures/random_forest_model_{currency_pair}.pkl')
+    gradient_boosting = joblib.load(f'models/architectures/gradient_boosting_{currency_pair}.pkl')
+    logreg = joblib.load(f'models/architectures/logreg_{currency_pair}.pkl')
+    mlp = joblib.load(f'models/architectures/mlp_{currency_pair}.pkl')
+    xgb = joblib.load(f'models/architectures/xgb_{currency_pair}.pkl')
+    label_encoder = joblib.load(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl')
     printLog('Done')
 
     printLog('Predicting...')
@@ -77,7 +86,7 @@ def make_predictions(dataframe, currency_pair):
     predictions_xgb = label_encoder.inverse_transform(xgb.predict(X))
     printLog('Done\n')
 
-    print_predictions(dataframe, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
+    print_predictions(stop_loss, take_profit, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
 
 
 if __name__ == '__main__':
@@ -85,50 +94,9 @@ if __name__ == '__main__':
         args = parsing()
         if args.BTCUSD is True:
             dataframe = pd.read_csv('data/BTCUSD/BTCUSD(D).csv')
-            new_row = pd.DataFrame({
-                'DATETIME': [None],
-                'OPEN': [None],
-                'HIGH': [None],
-                'LOW': [None],
-                'CLOSE': [None],
-                'VOLUME': [None]
-            })
-            dataframe = pd.concat([dataframe, new_row], ignore_index=True)
-            dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
-            dataframe = dataframe.sort_values(by='DATETIME')
-            
-            dataframe.at[dataframe.index[-1], 'OPEN'] = dataframe.iloc[-2]['CLOSE']
-            dataframe.at[dataframe.index[-1], 'DATETIME'] = dataframe.iloc[-2]['DATETIME'] + pd.DateOffset(days=1)
-            dataframe = preprocessing_predict(args, dataframe)
-            breakpoint()
-#            day_open = float(input('Open: '))
-
-#            new_row = pd.DataFrame({
-#                'DATETIME': [None],
-#                'OPEN': [day_open],
-#                'HIGH': [None],
-#                'LOW': [None],
-#                'CLOSE': [None],
-#                'ATR': [None],
-#                'EMA': [None],
-#                'RSI': [None],
-#                'MACD_LINE': [None],
-#                'MACD_SIGNAL': [None],
-#                'SMA': [None],
-#                'WMA': [None],
-#                'Hilbert_Transform': [None],
-#                'PPO_LINE': [None],
-#                'PPO_SIGNAL': [None],
-#                'PPO_LINE': [None],
-#                'ROC': [None]
-#            })
-            
+            dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
+            make_predictions(dataframe, 'BTCUSD', stop_loss, take_profit)
             
 
     except Exception as error:
         printError(error)
-
-
-
-
-##     FAIRE LES FONCTIONS POUR CALCULER LES INDICATEURS DE LA DERNIERE ENTREE SEULEMENT

@@ -86,14 +86,28 @@ def preprocessing_test(args, dataframe):
 def preprocessing_predict(args, dataframe):
     dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
     dataframe = dataframe.sort_values(by='DATETIME')
-    dataframe  = calc_indicators(dataframe, args) 
-    dataframe.bfill(inplace=True)
+    
+    new_row = pd.DataFrame({
+        'DATETIME': [dataframe.iloc[-1]['DATETIME'] + pd.DateOffset(days=1)],
+        'OPEN': [dataframe.iloc[-1]['CLOSE']],
+        'HIGH': [dataframe.iloc[-1]['CLOSE']],
+        'LOW': [dataframe.iloc[-1]['CLOSE']],
+        'CLOSE': [dataframe.iloc[-1]['CLOSE']],
+        'VOLUME': [None],
+    })
 
-#    scaler = StandardScaler()
-#    features = list(dataframe.columns)
-#    features.remove('DATETIME')
-#    features_df = dataframe[features]
-#    scaled_features = scaler.fit_transform(features_df)
-#    scaled_features_df = pd.DataFrame(scaled_features, columns=features)
-#   dataframe[features] = scaled_features_df
-    return dataframe
+    dataframe = pd.concat([dataframe, new_row], ignore_index=True)
+    dataframe  = calc_indicators(dataframe, args) 
+    dataframe.at[dataframe.index[-1], 'ATR'] = dataframe.iloc[-2]['ATR']
+    take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
+    stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
+
+    scaler = StandardScaler()
+    features = list(dataframe.columns)
+    features.remove('DATETIME')
+    features_df = dataframe[features]
+    scaled_features = scaler.fit_transform(features_df)
+    scaled_features_df = pd.DataFrame(scaled_features, columns=features)
+    dataframe[features] = scaled_features_df
+    dataframe = dataframe.tail(1).reset_index(drop=True)
+    return dataframe, stop_loss, take_profit
