@@ -11,9 +11,9 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-EURUSD', type=str, default=None, help='EURUSD datafile')
-    parser.add_argument('-GBPUSD', type=str, default=None, help='GBPUSD datafile')
     parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
+    parser.add_argument('-ETHUSD', type=str, default=None, help='ETHUSD datafile')
+    parser.add_argument('-BNBUSD', type=str, default=None, help='BNBUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -32,10 +32,10 @@ def parsing():
     args = parser.parse_args()
     if args.BTCUSD is not None:    
         error_check('BTCUSD')
-    if args.GBPUSD is not None:    
-        error_check('GBPUSD')
-    if args.EURUSD is not None:    
-        error_check('EURUSD')
+    if args.ETHUSD is not None:    
+        error_check('ETHUSD')
+    if args.BNBUSD is not None:    
+        error_check('BNBUSD')
     return args
 
 def error_check(currency_pair):
@@ -132,23 +132,24 @@ if __name__ == '__main__':
     try :
         args = parsing()
         pred_stats = {}
-        if args.EURUSD is not None:
-            printHeader('EURUSD')
-            dataframe = pd.read_csv(args.EURUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['EURUSD'] = make_test_predictions(dataframe, 'EURUSD')
-
-        if args.GBPUSD is not None:
-            printHeader('GBPUSD')
-            dataframe = pd.read_csv(args.GBPUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['GBPUSD'] = make_test_predictions(dataframe, 'GBPUSD')
 
         if args.BTCUSD is not None:
             printHeader('BTCUSD')
             dataframe = pd.read_csv(args.BTCUSD, index_col=False)
             dataframe = preprocessing_test(args, dataframe)
             pred_stats['BTCUSD'] = make_test_predictions(dataframe, 'BTCUSD')
+
+        if args.ETHUSD is not None:
+            printHeader('ETHUSD')
+            dataframe = pd.read_csv(args.ETHUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['ETHUSD'] = make_test_predictions(dataframe, 'ETHUSD')
+
+        if args.BNBUSD is not None:
+            printHeader('BNBUSD')
+            dataframe = pd.read_csv(args.BNBUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['BNBUSD'] = make_test_predictions(dataframe, 'BNBUSD')
 
 
         for currency in pred_stats.keys():

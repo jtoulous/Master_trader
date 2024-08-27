@@ -13,6 +13,8 @@ def parsing():
         description='predictive model for trading'
     )
     parser.add_argument('-BTCUSD', action='store_true', help='BTCUSD')
+    parser.add_argument('-ETHUSD', action='store_true', help='BTCUSD')
+    parser.add_argument('-BNBUSD', action='store_true', help='BTCUSD')
 
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
@@ -97,6 +99,15 @@ if __name__ == '__main__':
             dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
             make_predictions(dataframe, 'BTCUSD', stop_loss, take_profit)
             
+        if args.ETHUSD is True:
+            dataframe = pd.read_csv('data/ETHUSD/ETHUSD(D).csv')
+            dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
+            make_predictions(dataframe, 'ETHUSD', stop_loss, take_profit)
+
+        if args.BNBUSD is True:
+            dataframe = pd.read_csv('data/BNBUSD/BNBUSD(D).csv')
+            dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
+            make_predictions(dataframe, 'BNBUSD', stop_loss, take_profit)
 
     except Exception as error:
         printError(error)
