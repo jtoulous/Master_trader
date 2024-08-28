@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from scipy.signal import hilbert
-from .tools import printLog, printError, printInfo
+from .log import printLog
 
 def date_to_features(dataframe):
     printLog('Converting dates...')    

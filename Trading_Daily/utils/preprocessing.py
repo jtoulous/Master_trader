@@ -1,8 +1,7 @@
 import pandas as pd
-import os
 
 from sklearn.preprocessing import StandardScaler
-from .tools import printLog, printInfo, printError
+from .log import printLog
 from .indicators import calc_indicators
 
 
@@ -95,7 +94,7 @@ def preprocessing_predict(args, dataframe):
         'CLOSE': [dataframe.iloc[-1]['CLOSE']],
         'VOLUME': [None],
     })
-
+    
     dataframe = pd.concat([dataframe, new_row], ignore_index=True)
     dataframe  = calc_indicators(dataframe, args) 
     dataframe.at[dataframe.index[-1], 'ATR'] = dataframe.iloc[-2]['ATR']

@@ -3,6 +3,7 @@ import sys
 import argparse as ap
 from utils.indicators import calc_indicators
 from utils.preprocessing import calc_labels
+from utils.log import printError
 
 def ArgParsing():
     parser = ap.ArgumentParser(
@@ -40,4 +41,4 @@ if __name__ == '__main__':
         print(label_counts)
 
     except Exception as error:
-        print (error)
+        printError(error)

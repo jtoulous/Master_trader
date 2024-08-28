@@ -5,32 +5,28 @@ RESET := \033[0m
 all: venv install
 
 venv:
-	@echo "$(GREEN) ===> creating virtual environnement...$(RESET)"
+	@echo "$(GREEN) ===> creating virtual environnement..."
 	@python -m venv virtualEnv
-	@echo "$(GREEN) ===> Done.$(RESET)"
+	@echo " ===> Done.$(RESET)"
 
 install:
-	@echo "$(GREEN) ===> installing dependencies...$(RESET)"
+	@echo "$(GREEN) ===> installing dependencies..."
 	@. virtualEnv/bin/activate && pip install -r requirements.txt
-	@echo "$(GREEN) ===> Done.$(RESET)"
+	@. virtualEnv/bin/activate && pip install -e .
+	@rm -rf Trading_Daily/utils.egg-info
+	@echo " ===> Done.$(RESET)"
 
 reset:
-	@echo "$(RED) ===> resetting models...$(RESET)"
-	@rm -f srcs/models/*.pkl
-	@echo "$(RED) ===> Done.$(RESET)"
-	@echo "$(RED) ===> removing preprocessed files...$(RESET)"
-	@rm -f srcs/data/EURUSD/EURUSD_preprocessed.csv
-	@echo "$(RED) ===> Done.$(RESET)"
+	@echo "$(GREEN) ===> resetting models..."
+	@rm -f Trading_Daily/models/architectures/*.pkl
+	@echo " ===> Done.$(RESET)"
 
 clean:
-	@echo "$(RED) ===> removing virtual environnement...$(RESET)"
+	@echo "$(GREEN) ===> removing virtual environnement..."
 	@rm -rf virtualEnv
-	@echo "$(RED) ===> Done.$(RESET)"
-	@echo "$(RED) ===> resetting models...$(RESET)"
+	@echo " ===> Done."
+	@echo " ===> resetting models..."
 	@rm -f Trading_Daily/models/architectures/*.pkl
-	@echo "$(RED) ===> Done.$(RESET)"
-#	@echo "$(RED) ===> removing preprocessed files...$(RESET)"
-#	@rm -f srcs/data/EURUSD/EURUSD_preprocessed.csv
-#	@echo "$(RED) ===> Done.$(RESET)"
+	@echo " ===> Done.$(RESET)"
 
 .PHONY: all venv install clean

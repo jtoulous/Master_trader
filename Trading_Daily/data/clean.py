@@ -2,6 +2,8 @@ import pandas as pd
 import argparse as ap
 import os
 
+from utils.log import printError
+
 def ArgParsing():
     parser = ap.ArgumentParser(
         prog='data cleaner',
@@ -57,4 +59,4 @@ if __name__ == '__main__':
             CleanFile(args.file)
 
     except Exception as error:
-        print(error)
+        printError(error)

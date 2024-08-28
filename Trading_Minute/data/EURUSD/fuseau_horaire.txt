@@ -1,1 +1,0 @@
-TimeZone: Eastern Standard Time (EST) time-zone WITHOUT Day Light Savings adjustments

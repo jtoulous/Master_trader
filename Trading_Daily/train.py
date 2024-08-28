@@ -3,7 +3,7 @@ import argparse as ap
 
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
-from utils.tools import printLog, printError, printHeader
+from utils.log import printLog, printError, printHeader
 
 
 def parsing():
@@ -11,9 +11,11 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
-    parser.add_argument('-ETHUSD', type=str, default=None, help='ETHUSD datafile')
-    parser.add_argument('-BNBUSD', type=str, default=None, help='BNBUSD datafile')
+    parser.add_argument('-BTCUSD', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTCUSD datafile')
+    parser.add_argument('-ETHUSD', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETHUSD datafile')
+    parser.add_argument('-BNBUSD', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNBUSD datafile')
+    parser.add_argument('-SOLUSD', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOLUSD datafile')
+    parser.add_argument('-ADAUSD', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADAUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -58,21 +60,30 @@ if __name__ == '__main__':
     try:
         args = parsing()
 
-        if args.BTCUSD is not None:
-            printHeader('BTCUSD')
-            dataframe = preprocessing_train('BTCUSD', args, args.BTCUSD)
-            trainModels(dataframe, 'BTCUSD')
+#        if args.BTCUSD is not None:
+        printHeader('BTCUSD')
+        dataframe = preprocessing_train('BTC-USD', args, args.BTCUSD)
+        trainModels(dataframe, 'BTC-USD')
 
-        if args.ETHUSD is not None:
-            printHeader('ETHUSD')
-            dataframe = preprocessing_train('ETHUSD', args, args.ETHUSD)
-            trainModels(dataframe, 'ETHUSD')
+#        if args.ETHUSD is not None:
+        printHeader('ETH-USD')
+        dataframe = preprocessing_train('ETH-USD', args, args.ETHUSD)
+        trainModels(dataframe, 'ETH-USD')
         
-        if args.BNBUSD is not None:
-            printHeader('BNBUSD')
-            dataframe = preprocessing_train('BNBUSD', args, args.BNBUSD)
-            trainModels(dataframe, 'BNBUSD')
+#        if args.BNBUSD is not None:
+        printHeader('BNB-USD')
+        dataframe = preprocessing_train('BNB-USD', args, args.BNBUSD)
+        trainModels(dataframe, 'BNB-USD')
 
+#        if args.SOLUSD is not None:
+        printHeader('SOL-USD')
+        dataframe = preprocessing_train('SOL-USD', args, args.SOLUSD)
+        trainModels(dataframe, 'SOL-USD')
+
+#        if args.ADAUSD is not None:
+        printHeader('ADA-USD')
+        dataframe = preprocessing_train('ADA-USD', args, args.ADAUSD)
+        trainModels(dataframe, 'ADA-USD')
 
 
     except Exception as error:

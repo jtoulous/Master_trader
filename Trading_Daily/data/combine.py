@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse as ap
+from utils.log import printError
 
 def ArgParsing():
     parser = ap.ArgumentParser(
@@ -21,4 +22,4 @@ if __name__ == '__main__':
         combined_df.to_csv(args.dst, index=False)
 
     except Exception as error:
-        print(error)
+        printError(error)

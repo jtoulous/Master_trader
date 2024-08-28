@@ -4,7 +4,7 @@ import pandas as pd
 import joblib
 
 from utils.preprocessing import preprocessing_test
-from utils.tools import printLog, printError, printHeader
+from utils.log import printLog, printError, printHeader
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -14,6 +14,8 @@ def parsing():
     parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
     parser.add_argument('-ETHUSD', type=str, default=None, help='ETHUSD datafile')
     parser.add_argument('-BNBUSD', type=str, default=None, help='BNBUSD datafile')
+    parser.add_argument('-SOLUSD', type=str, default=None, help='SOLUSD datafile')
+    parser.add_argument('-ADAUSD', type=str, default=None, help='ADAUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -150,6 +152,18 @@ if __name__ == '__main__':
             dataframe = pd.read_csv(args.BNBUSD, index_col=False)
             dataframe = preprocessing_test(args, dataframe)
             pred_stats['BNBUSD'] = make_test_predictions(dataframe, 'BNBUSD')
+
+        if args.SOLUSD is not None:
+            printHeader('SOLUSD')
+            dataframe = pd.read_csv(args.SOLUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['SOLUSD'] = make_test_predictions(dataframe, 'SOLUSD')
+
+        if args.ADAUSD is not None:
+            printHeader('ADAUSD')
+            dataframe = pd.read_csv(args.ADAUSD, index_col=False)
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats['ADAUSD'] = make_test_predictions(dataframe, 'ADAUSD')
 
 
         for currency in pred_stats.keys():
