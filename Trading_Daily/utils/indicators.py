@@ -50,20 +50,20 @@ def RSI(dataframe, periods):
     printLog(f'Done')
     return dataframe
 
-#def STO(dataframe, periods):
-#    printLog(f'Calculating STO...')
-#    k_periods = periods[0]
-#    d_periods = periods[1]
-#
-#    low_min = dataframe['LOW'].rolling(window=k_periods, min_periods=1).min()
-#    high_max = dataframe['HIGH'].rolling(window=k_periods,min_periods=1).max()
-#    K = ((dataframe['CLOSE'] - low_min) / (high_max - low_min)) * 100
-#    D = K.rolling(window=d_periods, min_periods=1).mean()
-#
-#    dataframe['K(sto)'] = K.bfill()
-#    dataframe['D(sto)'] = D.bfill()
-#    printLog('Done')
-#    return dataframe
+def STO(dataframe, periods):
+    printLog(f'Calculating STO...')
+    k_periods = periods[0]
+    d_periods = periods[1]
+
+    low_min = dataframe['LOW'].rolling(window=k_periods, min_periods=1).min()
+    high_max = dataframe['HIGH'].rolling(window=k_periods,min_periods=1).max()
+    K = ((dataframe['CLOSE'] - low_min) / (high_max - low_min)) * 100
+    D = K.rolling(window=d_periods, min_periods=1).mean()
+
+    dataframe['K(sto)'] = K.bfill()
+    dataframe['D(sto)'] = D.bfill()
+    printLog('Done')
+    return dataframe
 
 def SMA(dataframe, periods):
     printLog(f'Calculating SMA...')
@@ -80,41 +80,41 @@ def WMA(dataframe, periods):
     printLog('Done')
     return dataframe
 
-#def DMI(dataframe, periods):
-#    printLog(f'Calculating DMI...')
-#    prev_row = None
-#    dm_plus = []
-#    dm_minus = []
-#
-#    for idx, row in dataframe.iterrows():
-#        if prev_row is not None:
-#            dm_plus_val = row['HIGH'] - prev_row['HIGH'] \
-#                            if row['HIGH'] - prev_row['HIGH'] > prev_row['LOW'] - row['LOW'] \
-#                            and row['HIGH'] - prev_row['HIGH'] > 0 \
-#                            else 0
-#            dm_minus_val = prev_row['LOW'] - row['LOW'] \
-#                            if prev_row['LOW'] - row['LOW'] > row['HIGH'] - prev_row['HIGH'] \
-#                            and prev_row['LOW'] - row['LOW'] > 0 \
-#                            else 0
-#        else:
-#            dm_plus_val = 0
-#            dm_minus_val = 0
-#        dm_plus.append(dm_plus_val)
-#        dm_minus.append(dm_minus_val)
-#        prev_row = row
-#
-#    dm_plus = pd.Series(dm_plus).bfill()
-#    dm_minus = pd.Series(dm_minus).bfill()
-#    dm_diff = abs(dm_plus - dm_minus)
-#    dm_sum = dm_plus + dm_minus
-#    dx = dm_diff / dm_sum
-#    adx = dx.rolling(window=periods, min_periods=1).mean().bfill()
-#    
-#    dataframe['DM+'] = dm_plus
-#    dataframe['DM-'] = dm_minus
-#    dataframe['ADX'] = adx
-#    printLog(f'Done')
-#    return dataframe
+def DMI(dataframe, periods):
+    printLog(f'Calculating DMI...')
+    prev_row = None
+    dm_plus = []
+    dm_minus = []
+
+    for idx, row in dataframe.iterrows():
+        if prev_row is not None:
+            dm_plus_val = row['HIGH'] - prev_row['HIGH'] \
+                            if row['HIGH'] - prev_row['HIGH'] > prev_row['LOW'] - row['LOW'] \
+                            and row['HIGH'] - prev_row['HIGH'] > 0 \
+                            else 0
+            dm_minus_val = prev_row['LOW'] - row['LOW'] \
+                            if prev_row['LOW'] - row['LOW'] > row['HIGH'] - prev_row['HIGH'] \
+                            and prev_row['LOW'] - row['LOW'] > 0 \
+                            else 0
+        else:
+            dm_plus_val = 0
+            dm_minus_val = 0
+        dm_plus.append(dm_plus_val)
+        dm_minus.append(dm_minus_val)
+        prev_row = row
+
+    dm_plus = pd.Series(dm_plus).bfill()
+    dm_minus = pd.Series(dm_minus).bfill()
+    dm_diff = abs(dm_plus - dm_minus)
+    dm_sum = dm_plus + dm_minus
+    dx = dm_diff / dm_sum
+    adx = dx.rolling(window=periods, min_periods=1).mean().bfill()
+    
+    dataframe['DM+'] = dm_plus
+    dataframe['DM-'] = dm_minus
+    dataframe['ADX'] = adx
+    printLog(f'Done')
+    return dataframe
 
 def Bollinger_bands(dataframe, args):
     printLog(f'Calculating Bollingers bands...')
