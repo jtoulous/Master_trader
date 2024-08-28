@@ -6,6 +6,7 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.log import printLog, printError
+from utils.dataframe import ReadDf
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -101,23 +102,23 @@ if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
     try:    
         args = parsing()
         
-        dataframe = pd.read_csv(args.BTCUSD)
+        dataframe = ReadDf(args.BTCUSD)
         dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
         make_predictions(dataframe, 'BTC-USD', stop_loss, take_profit)
             
-        dataframe = pd.read_csv(args.ETHUSD)
+        dataframe = ReadDf(args.ETHUSD)
         dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
         make_predictions(dataframe, 'ETH-USD', stop_loss, take_profit)
 
-        dataframe = pd.read_csv(args.BNBUSD)
+        dataframe = ReadDf(args.BNBUSD)
         dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
         make_predictions(dataframe, 'BNB-USD', stop_loss, take_profit)
 
-        dataframe = pd.read_csv(args.SOLUSD)
+        dataframe = ReadDf(args.SOLUSD)
         dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
         make_predictions(dataframe, 'SOL-USD', stop_loss, take_profit)
 
-        dataframe = pd.read_csv(args.ADAUSD)
+        dataframe = ReadDf(args.ADAUSD)
         dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
         make_predictions(dataframe, 'ADA-USD', stop_loss, take_profit)
 

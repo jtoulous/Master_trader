@@ -11,11 +11,11 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTCUSD', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTCUSD datafile')
-    parser.add_argument('-ETHUSD', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETHUSD datafile')
-    parser.add_argument('-BNBUSD', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNBUSD datafile')
-    parser.add_argument('-SOLUSD', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOLUSD datafile')
-    parser.add_argument('-ADAUSD', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADAUSD datafile')
+    parser.add_argument('-BTC', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTCUSD datafile')
+    parser.add_argument('-ETH', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETHUSD datafile')
+    parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNBUSD datafile')
+    parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOLUSD datafile')
+    parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADAUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -60,29 +60,24 @@ if __name__ == '__main__':
     try:
         args = parsing()
 
-#        if args.BTCUSD is not None:
-        printHeader('BTCUSD')
-        dataframe = preprocessing_train('BTC-USD', args, args.BTCUSD)
+        printHeader('BTC-USD')
+        dataframe = preprocessing_train('BTC-USD', args, args.BTC)
         trainModels(dataframe, 'BTC-USD')
 
-#        if args.ETHUSD is not None:
         printHeader('ETH-USD')
-        dataframe = preprocessing_train('ETH-USD', args, args.ETHUSD)
+        dataframe = preprocessing_train('ETH-USD', args, args.ETH)
         trainModels(dataframe, 'ETH-USD')
         
-#        if args.BNBUSD is not None:
         printHeader('BNB-USD')
-        dataframe = preprocessing_train('BNB-USD', args, args.BNBUSD)
+        dataframe = preprocessing_train('BNB-USD', args, args.BNB)
         trainModels(dataframe, 'BNB-USD')
 
-#        if args.SOLUSD is not None:
         printHeader('SOL-USD')
-        dataframe = preprocessing_train('SOL-USD', args, args.SOLUSD)
+        dataframe = preprocessing_train('SOL-USD', args, args.SOL)
         trainModels(dataframe, 'SOL-USD')
 
-#        if args.ADAUSD is not None:
         printHeader('ADA-USD')
-        dataframe = preprocessing_train('ADA-USD', args, args.ADAUSD)
+        dataframe = preprocessing_train('ADA-USD', args, args.ADA)
         trainModels(dataframe, 'ADA-USD')
 
 

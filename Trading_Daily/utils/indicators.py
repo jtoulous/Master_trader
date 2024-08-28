@@ -116,20 +116,20 @@ def WMA(dataframe, periods):
 #    printLog(f'Done')
 #    return dataframe
 
-#def Bollinger_bands(dataframe, args):
-#    printLog(f'Calculating Bollingers bands...')
-#    periods = args[0]
-#    num_std_dev = args[1]
-#
-#    TMP_SMA = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
-#    TMP_STD = dataframe['CLOSE'].rolling(window=periods, min_periods=1).std()
-#    u_band = TMP_SMA + (TMP_STD * num_std_dev)
-#    l_band = TMP_SMA - (TMP_STD * num_std_dev)
-#
-#    dataframe['U-BAND'] = u_band.bfill()
-#    dataframe['L-BAND'] = l_band.bfill()
-#    printLog('Done')
-#    return dataframe
+def Bollinger_bands(dataframe, args):
+    printLog(f'Calculating Bollingers bands...')
+    periods = args[0]
+    num_std_dev = args[1]
+
+    TMP_SMA = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
+    TMP_STD = dataframe['CLOSE'].rolling(window=periods, min_periods=1).std()
+    u_band = TMP_SMA + (TMP_STD * num_std_dev)
+    l_band = TMP_SMA - (TMP_STD * num_std_dev)
+
+    dataframe['U-BAND'] = u_band.bfill()
+    dataframe['L-BAND'] = l_band.bfill()
+    printLog('Done')
+    return dataframe
 
 def MACD(dataframe, args):
     printLog(f'Calculating MACD...')

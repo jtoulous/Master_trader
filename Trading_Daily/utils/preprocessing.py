@@ -3,7 +3,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from .log import printLog
 from .indicators import calc_indicators
-
+from .dataframe import ReadDf
+#from .estimate import EstimateLow, EstimateHigh, EstimateClose
 
 def calc_labels(dataframe, args):
     printLog('Defining labels...')
@@ -42,10 +43,8 @@ def calc_labels(dataframe, args):
     return dataframe
 
 
-def preprocessing_train(currency_pair, args, datafile):
-    dataframe = pd.read_csv(datafile, index_col=False)
-    dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
-    dataframe = dataframe.sort_values(by='DATETIME')
+def preprocessing_train(args, datafile):
+    dataframe = ReadDf(datafile)
     dataframe  = calc_indicators(dataframe, args) 
     dataframe = calc_labels(dataframe, args)
     dataframe = dataframe.drop(dataframe.index[:10])
@@ -83,12 +82,12 @@ def preprocessing_test(args, dataframe):
 
 
 def preprocessing_predict(args, dataframe):
-    dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
-    dataframe = dataframe.sort_values(by='DATETIME')
-    
     new_row = pd.DataFrame({
         'DATETIME': [dataframe.iloc[-1]['DATETIME'] + pd.DateOffset(days=1)],
         'OPEN': [dataframe.iloc[-1]['CLOSE']],
+#        'HIGH': [EstimateHigh(dataframe, args)],
+#        'LOW': [EstimateLow(dataframe, args)],
+#        'CLOSE': [EstimateClose(dataframe, args)],
         'HIGH': [dataframe.iloc[-1]['CLOSE']],
         'LOW': [dataframe.iloc[-1]['CLOSE']],
         'CLOSE': [dataframe.iloc[-1]['CLOSE']],

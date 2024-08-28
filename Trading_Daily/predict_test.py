@@ -5,17 +5,18 @@ import joblib
 
 from utils.preprocessing import preprocessing_test
 from utils.log import printLog, printError, printHeader
+from utils.dataframe import ReadDf
 
 def parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTCUSD', type=str, default=None, help='BTCUSD datafile')
-    parser.add_argument('-ETHUSD', type=str, default=None, help='ETHUSD datafile')
-    parser.add_argument('-BNBUSD', type=str, default=None, help='BNBUSD datafile')
-    parser.add_argument('-SOLUSD', type=str, default=None, help='SOLUSD datafile')
-    parser.add_argument('-ADAUSD', type=str, default=None, help='ADAUSD datafile')
+    parser.add_argument('-BTC', type=str, default='data/BTC-USD/test_predict.csv', help='BTCUSD datafile')
+    parser.add_argument('-ETH', type=str, default='data/ETH-USD/test_predict.csv', help='ETHUSD datafile')
+    parser.add_argument('-BNB', type=str, default='data/BNB-USD/test_predict.csv', help='BNBUSD datafile')
+    parser.add_argument('-SOL', type=str, default='data/SOL-USD/test_predict.csv', help='SOLUSD datafile')
+    parser.add_argument('-ADA', type=str, default='data/ADA-USD/test_predict.csv', help='ADAUSD datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -32,12 +33,9 @@ def parsing():
     parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-    if args.BTCUSD is not None:    
-        error_check('BTCUSD')
-    if args.ETHUSD is not None:    
-        error_check('ETHUSD')
-    if args.BNBUSD is not None:    
-        error_check('BNBUSD')
+    error_check('BTC-USD')
+    error_check('ETH-USD')
+    error_check('BNB-USD')
     return args
 
 def error_check(currency_pair):
@@ -135,35 +133,30 @@ if __name__ == '__main__':
         args = parsing()
         pred_stats = {}
 
-        if args.BTCUSD is not None:
-            printHeader('BTCUSD')
-            dataframe = pd.read_csv(args.BTCUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['BTCUSD'] = make_test_predictions(dataframe, 'BTCUSD')
+        printHeader('BTCUSD')
+        dataframe = ReadDf(args.BTC)
+        dataframe = preprocessing_test(args, dataframe)
+        pred_stats['BTCUSD'] = make_test_predictions(dataframe, 'BTC-USD')
 
-        if args.ETHUSD is not None:
-            printHeader('ETHUSD')
-            dataframe = pd.read_csv(args.ETHUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['ETHUSD'] = make_test_predictions(dataframe, 'ETHUSD')
+        printHeader('ETHUSD')
+        dataframe = ReadDf(args.ETH)
+        dataframe = preprocessing_test(args, dataframe)
+        pred_stats['ETHUSD'] = make_test_predictions(dataframe, 'ETH-USD')
 
-        if args.BNBUSD is not None:
-            printHeader('BNBUSD')
-            dataframe = pd.read_csv(args.BNBUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['BNBUSD'] = make_test_predictions(dataframe, 'BNBUSD')
+        printHeader('BNBUSD')
+        dataframe = ReadDf(args.BNB)
+        dataframe = preprocessing_test(args, dataframe)
+        pred_stats['BNBUSD'] = make_test_predictions(dataframe, 'BNB-USD')
 
-        if args.SOLUSD is not None:
-            printHeader('SOLUSD')
-            dataframe = pd.read_csv(args.SOLUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['SOLUSD'] = make_test_predictions(dataframe, 'SOLUSD')
+        printHeader('SOLUSD')
+        dataframe = ReadDf(args.SOL)
+        dataframe = preprocessing_test(args, dataframe)
+        pred_stats['SOLUSD'] = make_test_predictions(dataframe, 'SOL-USD')
 
-        if args.ADAUSD is not None:
-            printHeader('ADAUSD')
-            dataframe = pd.read_csv(args.ADAUSD, index_col=False)
-            dataframe = preprocessing_test(args, dataframe)
-            pred_stats['ADAUSD'] = make_test_predictions(dataframe, 'ADAUSD')
+        printHeader('ADAUSD')
+        dataframe = ReadDf(args.ADA)
+        dataframe = preprocessing_test(args, dataframe)
+        pred_stats['ADAUSD'] = make_test_predictions(dataframe, 'ADA-USD')
 
 
         for currency in pred_stats.keys():
