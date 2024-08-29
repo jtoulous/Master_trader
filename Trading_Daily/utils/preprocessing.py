@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from .log import printLog
 from .indicators import calc_indicators
 from .dataframe import ReadDf
-#from .estimate import EstimateLow, EstimateHigh, EstimateClose
+from .estimate import Estimate
 
 def calc_labels(dataframe, args):
     printLog('Defining labels...')
@@ -85,12 +85,12 @@ def preprocessing_predict(args, dataframe):
     new_row = pd.DataFrame({
         'DATETIME': [dataframe.iloc[-1]['DATETIME'] + pd.DateOffset(days=1)],
         'OPEN': [dataframe.iloc[-1]['CLOSE']],
-#        'HIGH': [EstimateHigh(dataframe, args)],
-#        'LOW': [EstimateLow(dataframe, args)],
-#        'CLOSE': [EstimateClose(dataframe, args)],
-        'HIGH': [dataframe.iloc[-1]['CLOSE']],
-        'LOW': [dataframe.iloc[-1]['CLOSE']],
-        'CLOSE': [dataframe.iloc[-1]['CLOSE']],
+        'HIGH': [Estimate(dataframe, args, 'HIGH')],
+        'LOW': [Estimate(dataframe, args, 'LOW')],
+        'CLOSE': [Estimate(dataframe, args, 'CLOSE')],
+#        'HIGH': [dataframe.iloc[-1]['CLOSE']],
+#        'LOW': [dataframe.iloc[-1]['CLOSE']],
+#        'CLOSE': [dataframe.iloc[-1]['CLOSE']],
         'VOLUME': [None],
     })
     
