@@ -4,6 +4,9 @@ def ActiveCryptos():
         'ETH-USD',
         'SOL-USD',
         'BNB-USD',
-        'ADA-USD'
+        'ADA-USD',
+        'DASH-BTC',
+        'KAVA-BTC',
+        'ZEC-BTC'
     ]
     return active_cryptos

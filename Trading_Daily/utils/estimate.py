@@ -60,9 +60,9 @@ def Estimate(dataframe, args, pred_type):
         verbose=False
     )
 
-    Cross_Val(MLP, X_train, y_train, 5, 'MLP')
-    Cross_Val(RFC, X_train, y_train, 5, 'RFC')
-    Cross_Val(GBC, X_train, y_train, 5, 'GBC')
+#    Cross_Val(MLP, X_train, y_train, 5, 'MLP')
+#    Cross_Val(RFC, X_train, y_train, 5, 'RFC')
+#    Cross_Val(GBC, X_train, y_train, 5, 'GBC')
 
     MLP.fit(X_train, y_train)
     GBC.fit(X_train, y_train)
@@ -87,4 +87,4 @@ def Estimate(dataframe, args, pred_type):
     gbc_pred_denorm = gbc_pred * label_scale + label_mean
     rfc_pred_denorm = rfc_pred * label_scale + label_mean
 
-    return (mlp_pred_denorm + gbc_pred_denorm + rfc_pred_denorm) / 3
+    return (mlp_pred_denorm[0] + gbc_pred_denorm[0] + rfc_pred_denorm[0]) / 3

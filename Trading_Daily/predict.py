@@ -13,12 +13,16 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTCUSD', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTC-USD datafile')
-    parser.add_argument('-ETHUSD', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETH-USD datafile')
-    parser.add_argument('-BNBUSD', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNB-USD datafile')
-    parser.add_argument('-SOLUSD', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOL-USD datafile')
-    parser.add_argument('-ADAUSD', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADA-USD datafile')
+    parser.add_argument('-BTC', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTC-USD datafile')
+    parser.add_argument('-ETH', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETH-USD datafile')
+    parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNB-USD datafile')
+    parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOL-USD datafile')
+    parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADA-USD datafile')
+    parser.add_argument('-DASH', type=str, default='data/DASH-BTC/DASH-BTC.csv', help='DASHBTC datafile')
+    parser.add_argument('-KAVA', type=str, default='data/KAVA-BTC/KAVA-BTC.csv', help='KAVABTC datafile')
+    parser.add_argument('-ZEC', type=str, default='data/ZEC-BTC/ZEC-BTC.csv', help='ZECBTC datafile')
 
+    parser.add_argument('-date', type=str, default=None, help='prediction date')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
@@ -51,7 +55,7 @@ def error_check(currency):
         raise Exception(f'error: train {currency} models before making {currency} predictions')
 
 
-def print_predictions(currency, stop_loss, take_profit, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
+def print_predictions(currency, stop_loss, take_profit, open, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
         prediction = 'Win' if predictions_rf[0] == 'W'\
                         and predictions_gb[0] == 'W'\
                         and predictions_lr[0] == 'W'\
@@ -59,14 +63,14 @@ def print_predictions(currency, stop_loss, take_profit, predictions_rf, predicti
                         and predictions_mlp[0] == 'W'\
                         else 'Lose'
         printLog(f'\n=========   PREDICTION {currency}  =========')
-        printLog(f'====> {prediction}\n')
-        if prediction == 'Win':    
-            printLog(f'  SL ==> {stop_loss}')
-            printLog(f'  TP ==> {take_profit}')
+        printLog(f'====> {prediction}')
+#        if prediction == 'Win':    
+        printLog(f'  OPEN == {open}')
+        printLog(f'  SL == {stop_loss}')
+        printLog(f'  TP == {take_profit}')
 
 
-def make_predictions(dataframe, currency_pair, stop_loss, take_profit):
-#    printLog('Reading data...')
+def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
     features = list(dataframe.columns)
     features.remove('DATETIME')
     features.remove('HIGH')
@@ -75,53 +79,67 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit):
     features.remove('VOLUME')
     if 'LABEL' in features:
         features.remove('LABEL')
-    X = dataframe[features]
-#    printLog('Done')
+#    X = dataframe[features]
 
-    printLog('Loading models...')
     random_forest = joblib.load(f'models/architectures/random_forest_model_{currency_pair}.pkl')
     gradient_boosting = joblib.load(f'models/architectures/gradient_boosting_{currency_pair}.pkl')
     logreg = joblib.load(f'models/architectures/logreg_{currency_pair}.pkl')
     mlp = joblib.load(f'models/architectures/mlp_{currency_pair}.pkl')
     xgb = joblib.load(f'models/architectures/xgb_{currency_pair}.pkl')
     label_encoder = joblib.load(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl')
-    printLog('Done')
+    scaler = joblib.load(f'models/architectures/scaler_{currency_pair}.joblib')
+    
+    features_df = dataframe[features]
+    scaled_features = scaler.transform(features_df)
+    scaled_features_df =  pd.DataFrame(scaled_features, columns=features)
+    dataframe[features] = scaled_features_df
+#    breakpoint()
 
-    printLog('Predicting...')
+    X = dataframe[features]
     predictions_rf = random_forest.predict(X)
     predictions_gb = gradient_boosting.predict(X)
     predictions_lr = logreg.predict(X)
     predictions_mlp = mlp.predict(X)
     predictions_xgb = label_encoder.inverse_transform(xgb.predict(X))
-    printLog('Done\n')
 
-    print_predictions(currency_pair, stop_loss, take_profit, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
+    print_predictions(currency_pair, stop_loss, take_profit, open, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
 
 
 if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
     try:    
         args = parsing()
         
-        dataframe = ReadDf(args.BTCUSD)
-        dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
-        make_predictions(dataframe, 'BTC-USD', stop_loss, take_profit)
+        dataframe = ReadDf(args.BTC)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'BTC-USD')
+        make_predictions(dataframe, 'BTC-USD', stop_loss, take_profit, open)
             
-        dataframe = ReadDf(args.ETHUSD)
-        dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
-        make_predictions(dataframe, 'ETH-USD', stop_loss, take_profit)
+        dataframe = ReadDf(args.ETH)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ETH-USD')
+        make_predictions(dataframe, 'ETH-USD', stop_loss, take_profit, open)
 
-        dataframe = ReadDf(args.BNBUSD)
-        dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
-        make_predictions(dataframe, 'BNB-USD', stop_loss, take_profit)
+        dataframe = ReadDf(args.BNB)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'BNB-USD')
+        make_predictions(dataframe, 'BNB-USD', stop_loss, take_profit, open)
 
-        dataframe = ReadDf(args.SOLUSD)
-        dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
-        make_predictions(dataframe, 'SOL-USD', stop_loss, take_profit)
+        dataframe = ReadDf(args.SOL)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'SOL-USD')
+        make_predictions(dataframe, 'SOL-USD', stop_loss, take_profit, open)
 
-        dataframe = ReadDf(args.ADAUSD)
-        dataframe, stop_loss, take_profit = preprocessing_predict(args, dataframe)
-        make_predictions(dataframe, 'ADA-USD', stop_loss, take_profit)
+        dataframe = ReadDf(args.ADA)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ADA-USD')
+        make_predictions(dataframe, 'ADA-USD', stop_loss, take_profit, open)
 
-
+#        dataframe = ReadDf(args.DASH)
+#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'DASH-BTC')
+#        make_predictions(dataframe, 'DASH-BTC', stop_loss, take_profit, open)
+#
+#        dataframe = ReadDf(args.KAVA)
+#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'KAVA-BTC')
+#        make_predictions(dataframe, 'KAVA-BTC', stop_loss, take_profit, open)
+#
+#        dataframe = ReadDf(args.ZEC)
+#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ZEC-BTC')
+#        make_predictions(dataframe, 'ZEC-BTC', stop_loss, take_profit, open)
+ 
     except Exception as error:
         printError(error)

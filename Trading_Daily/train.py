@@ -1,5 +1,6 @@
 import os
 import argparse as ap
+import joblib
 
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
@@ -16,6 +17,9 @@ def parsing():
     parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNBUSD datafile')
     parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOLUSD datafile')
     parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADAUSD datafile')
+    parser.add_argument('-DASH', type=str, default='data/DASH-BTC/DASH-BTC.csv', help='DASHBTC datafile')
+    parser.add_argument('-KAVA', type=str, default='data/KAVA-BTC/KAVA-BTC.csv', help='KAVABTC datafile')
+    parser.add_argument('-ZEC', type=str, default='data/ZEC-BTC/ZEC-BTC.csv', help='ZECBTC datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -34,7 +38,7 @@ def parsing():
     return parser.parse_args()
 
 
-def trainModels(dataframe, currency_pair):
+def trainModels(dataframe, currency_pair, scaler):
     printLog('\nTRAINING GRADIENT BOOSTING MODEL...')
     GradientBoosting(dataframe, currency_pair)
     printLog('GRADIENT BOOSTING MODEL DONE\n')
@@ -55,31 +59,47 @@ def trainModels(dataframe, currency_pair):
     XGB(dataframe, currency_pair)
     printLog('XGB MODEL DONE\n')
 
+    joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}.joblib')
+
 
 if __name__ == '__main__':
     try:
         args = parsing()
 
         printHeader('BTC-USD')
-        dataframe = preprocessing_train('BTC-USD', args, args.BTC)
-        trainModels(dataframe, 'BTC-USD')
+        dataframe, scaler = preprocessing_train(args, args.BTC)
+        trainModels(dataframe, 'BTC-USD', scaler)
 
         printHeader('ETH-USD')
-        dataframe = preprocessing_train('ETH-USD', args, args.ETH)
-        trainModels(dataframe, 'ETH-USD')
+        dataframe, scaler = preprocessing_train(args, args.ETH)
+        trainModels(dataframe, 'ETH-USD', scaler)
         
         printHeader('BNB-USD')
-        dataframe = preprocessing_train('BNB-USD', args, args.BNB)
-        trainModels(dataframe, 'BNB-USD')
+        dataframe, scaler = preprocessing_train(args, args.BNB)
+        trainModels(dataframe, 'BNB-USD', scaler)
 
         printHeader('SOL-USD')
-        dataframe = preprocessing_train('SOL-USD', args, args.SOL)
-        trainModels(dataframe, 'SOL-USD')
+        dataframe, scaler = preprocessing_train(args, args.SOL)
+        trainModels(dataframe, 'SOL-USD', scaler)
 
         printHeader('ADA-USD')
-        dataframe = preprocessing_train('ADA-USD', args, args.ADA)
-        trainModels(dataframe, 'ADA-USD')
+        dataframe, scaler = preprocessing_train(args, args.ADA)
+        trainModels(dataframe, 'ADA-USD', scaler)
 
+#        printHeader('DASH-BTC')
+#        breakpoint()
+#        dataframe, scaler = preprocessing_train(args, args.DASH)
+#        breakpoint()
+#        trainModels(dataframe, 'DASH-BTC', scaler)
+#        breakpoint()
+#
+#        printHeader('KAVA-BTC')
+#        dataframe, scaler = preprocessing_train(args, args.KAVA)
+#        trainModels(dataframe, 'KAVA-BTC', scaler)
+#
+#        printHeader('ZEC-BTC')
+#        dataframe, scaler = preprocessing_train(args, args.ZEC)
+#        trainModels(dataframe, 'ZEC-BTC', scaler)
 
     except Exception as error:
         printError(error)

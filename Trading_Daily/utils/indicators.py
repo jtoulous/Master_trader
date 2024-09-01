@@ -5,13 +5,13 @@ from scipy.signal import hilbert
 from .log import printLog
 
 def date_to_features(dataframe):
-    printLog('Converting dates...')    
+#    printLog('Converting dates...')    
     dataframe['DAY'] = dataframe['DATETIME'].dt.dayofweek + 1
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def ATR(dataframe, periods):
-    printLog('Calculating ATR...')
+#    printLog('Calculating ATR...')
     tr = []
     prev_row = None
 
@@ -25,17 +25,17 @@ def ATR(dataframe, periods):
 
     tr = pd.Series(tr)
     dataframe['ATR'] = tr.rolling(window=periods, min_periods=1).mean()
-    printLog(f'Done')
+#    printLog(f'Done')
     return dataframe
 
 def EMA(dataframe, periods):
-    printLog(f'Calculating EMA...')
+#    printLog(f'Calculating EMA...')
     dataframe['EMA'] = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
-    printLog(f'Done')
+#    printLog(f'Done')
     return dataframe
 
 def RSI(dataframe, periods):
-    printLog(f'Calculating RSI...')
+#    printLog(f'Calculating RSI...')
     delta = dataframe['CLOSE'].diff(1)
     gain = (delta.where(delta > 0, 0)).fillna(0)
     loss = (delta.where(delta < 0, 0)).fillna(0)
@@ -47,11 +47,11 @@ def RSI(dataframe, periods):
     rsi = 100 - (100 / (1 + rs))
 
     dataframe['RSI'] = rsi.bfill()
-    printLog(f'Done')
+#    printLog(f'Done')
     return dataframe
 
 def STO(dataframe, periods):
-    printLog(f'Calculating STO...')
+#    printLog(f'Calculating STO...')
     k_periods = periods[0]
     d_periods = periods[1]
 
@@ -62,26 +62,26 @@ def STO(dataframe, periods):
 
     dataframe['K(sto)'] = K.bfill()
     dataframe['D(sto)'] = D.bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def SMA(dataframe, periods):
-    printLog(f'Calculating SMA...')
+#    printLog(f'Calculating SMA...')
     dataframe['SMA'] = dataframe['CLOSE'].rolling(window=periods, min_periods=1).mean()
     dataframe['SMA'] = dataframe['SMA'].bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def WMA(dataframe, periods):
-    printLog(f'Calculating WMA...')
+#    printLog(f'Calculating WMA...')
     weights = pd.Series(np.arange(1, periods + 1) / np.sum(np.arange(1, periods + 1)))
     weighted_close = dataframe['CLOSE'].rolling(window=periods).apply(lambda x: (x * weights).sum(), raw=True)
     dataframe['WMA'] = weighted_close.bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def DMI(dataframe, periods):
-    printLog(f'Calculating DMI...')
+#    printLog(f'Calculating DMI...')
     prev_row = None
     dm_plus = []
     dm_minus = []
@@ -113,11 +113,11 @@ def DMI(dataframe, periods):
     dataframe['DM+'] = dm_plus
     dataframe['DM-'] = dm_minus
     dataframe['ADX'] = adx
-    printLog(f'Done')
+#    printLog(f'Done')
     return dataframe
 
 def Bollinger_bands(dataframe, args):
-    printLog(f'Calculating Bollingers bands...')
+#    printLog(f'Calculating Bollingers bands...')
     periods = args[0]
     num_std_dev = args[1]
 
@@ -128,11 +128,11 @@ def Bollinger_bands(dataframe, args):
 
     dataframe['U-BAND'] = u_band.bfill()
     dataframe['L-BAND'] = l_band.bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def MACD(dataframe, args):
-    printLog(f'Calculating MACD...')
+#    printLog(f'Calculating MACD...')
     short_period = args[0]
     long_period = args[1]
     signal_period = args[2]
@@ -146,30 +146,30 @@ def MACD(dataframe, args):
     dataframe['MACD_LINE'] = macd_line.bfill()
     dataframe['MACD_SIGNAL'] = macd_signal.bfill()
     dataframe['MACD_HISTO'] = macd_histo.bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def Hilberts_transform(dataframe):
-    printLog(f'Calculating Hilberts transform...')
+#    printLog(f'Calculating Hilberts transform...')
     analytic_signal = hilbert(dataframe['CLOSE'])
     dataframe['Hilbert_Transform'] = analytic_signal.imag
     dataframe['Hilbert_Transform'] = dataframe['Hilbert_Transform'].bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
-#def CCI(dataframe, periods):
+def CCI(dataframe, periods):
 #    printLog('Calculating CCI...')
-#    TP = (dataframe['HIGH'] + dataframe['LOW'] + dataframe['CLOSE']) / 3
-#    SMA_TP = TP.rolling(window=periods, min_periods=1).mean()
-#    MD = TP.rolling(window=periods, min_periods=1).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
-#
-#    CCI = (TP -SMA_TP) / (0.015 * MD)
-#    dataframe['CCI'] = CCI.bfill()
+    TP = (dataframe['HIGH'] + dataframe['LOW'] + dataframe['CLOSE']) / 3
+    SMA_TP = TP.rolling(window=periods, min_periods=1).mean()
+    MD = TP.rolling(window=periods, min_periods=1).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
+
+    CCI = (TP -SMA_TP) / (0.015 * MD)
+    dataframe['CCI'] = CCI.bfill()
 #    printLog('Done')
-#    return dataframe
+    return dataframe
 
 def PPO(dataframe, periods):
-    printLog('Calculating PPO...')
+#    printLog('Calculating PPO...')
     short_period = periods[0]
     long_period = periods[1]
     signal_period = periods[2]
@@ -181,29 +181,27 @@ def PPO(dataframe, periods):
     
     dataframe['PPO_LINE'] = ppo_line.bfill()
     dataframe['PPO_SIGNAL'] = signal_line.bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def ROC(dataframe):
-    printLog('Calculating ROC...')
+#    printLog('Calculating ROC...')
     dataframe['ROC'] = dataframe['CLOSE'].pct_change()
     dataframe['ROC'] = dataframe['ROC'].bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 
-
-
 def feature_engineering(dataframe):
-    printLog('Feature engineering...')
+#    printLog('Feature engineering...')
     dataframe['ATR_Lagged'] = dataframe['ATR'].shift(1).bfill()
     dataframe['EMA_Lagged'] = dataframe['EMA'].shift(1).bfill()
     dataframe['RSI_Lagged'] = dataframe['RSI'].shift(1).bfill()
-#    dataframe['Momentum'] = dataframe['CLOSE'] - dataframe['CLOSE'].shift(1).bfill()
+    dataframe['Momentum'] = dataframe['CLOSE'] - dataframe['CLOSE'].shift(1).bfill()
     dataframe['MACD_Difference'] = dataframe['MACD_LINE'] - dataframe['MACD_SIGNAL'].bfill()
-#    dataframe['Bollinger_Width'] = dataframe['U-BAND'] - dataframe['L-BAND'].bfill()
+    dataframe['Bollinger_Width'] = dataframe['U-BAND'] - dataframe['L-BAND'].bfill()
     dataframe['EMA_SMA_Ratio'] = dataframe['EMA'] / dataframe['SMA'].bfill()
-    printLog('Done')
+#    printLog('Done')
     return dataframe
 
 def calc_indicators(dataframe, args):
@@ -211,14 +209,14 @@ def calc_indicators(dataframe, args):
     dataframe = ATR(dataframe, args.atr)
     dataframe = EMA(dataframe, args.ema)
     dataframe = RSI(dataframe, args.rsi)
-#    dataframe = STO(dataframe, args.sto)
+    dataframe = STO(dataframe, args.sto)
     dataframe = SMA(dataframe, args.sma)
     dataframe = WMA(dataframe, args.wma)
-#    dataframe = DMI(dataframe, args.dmi)
-#    dataframe = Bollinger_bands(dataframe, args.blg)
+    dataframe = DMI(dataframe, args.dmi)
+    dataframe = Bollinger_bands(dataframe, args.blg)
     dataframe = MACD(dataframe, args.macd)
     dataframe = Hilberts_transform(dataframe)
-#    dataframe = CCI(dataframe, args.cci)
+    dataframe = CCI(dataframe, args.cci)
     dataframe = PPO(dataframe, args.ppo)
     dataframe = ROC(dataframe)
     dataframe = feature_engineering(dataframe)

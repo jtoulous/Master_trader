@@ -17,6 +17,9 @@ def parsing():
     parser.add_argument('-BNB', type=str, default='data/BNB-USD/test_predict.csv', help='BNBUSD datafile')
     parser.add_argument('-SOL', type=str, default='data/SOL-USD/test_predict.csv', help='SOLUSD datafile')
     parser.add_argument('-ADA', type=str, default='data/ADA-USD/test_predict.csv', help='ADAUSD datafile')
+    parser.add_argument('-DASH', type=str, default='data/DASH-BTC/DASH-BTC.csv', help='DASHBTC datafile')
+    parser.add_argument('-KAVA', type=str, default='data/KAVA-BTC/KAVA-BTC.csv', help='KAVABTC datafile')
+    parser.add_argument('-ZEC', type=str, default='data/ZEC-BTC/ZEC-BTC.csv', help='ZECBTC datafile')
 
     parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
@@ -157,6 +160,21 @@ if __name__ == '__main__':
         dataframe = ReadDf(args.ADA)
         dataframe = preprocessing_test(args, dataframe)
         pred_stats['ADAUSD'] = make_test_predictions(dataframe, 'ADA-USD')
+
+#        printHeader('DASHBTC')
+#        dataframe = ReadDf(args.DASH)
+#        dataframe = preprocessing_test(args, dataframe)
+#        pred_stats['DASHBTC'] = make_test_predictions(dataframe, 'DASH-BTC')
+#
+#        printHeader('KAVABTC')
+#        dataframe = ReadDf(args.KAVA)
+#        dataframe = preprocessing_test(args, dataframe)
+#        pred_stats['KAVABTC'] = make_test_predictions(dataframe, 'KAVA-BTC')
+#
+#        printHeader('ZECBTC')
+#        dataframe = ReadDf(args.ZEC)
+#        dataframe = preprocessing_test(args, dataframe)
+#        pred_stats['ZECBTC'] = make_test_predictions(dataframe, 'ZEC-BTC')
 
 
         for currency in pred_stats.keys():
