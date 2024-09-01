@@ -6,6 +6,7 @@ import joblib
 from utils.preprocessing import preprocessing_test
 from utils.log import printLog, printError, printHeader
 from utils.dataframe import ReadDf
+from utils.arguments import GetArg
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -17,28 +18,27 @@ def parsing():
     parser.add_argument('-BNB', type=str, default='data/BNB-USD/test_predict.csv', help='BNBUSD datafile')
     parser.add_argument('-SOL', type=str, default='data/SOL-USD/test_predict.csv', help='SOLUSD datafile')
     parser.add_argument('-ADA', type=str, default='data/ADA-USD/test_predict.csv', help='ADAUSD datafile')
-    parser.add_argument('-DASH', type=str, default='data/DASH-BTC/DASH-BTC.csv', help='DASHBTC datafile')
-    parser.add_argument('-KAVA', type=str, default='data/KAVA-BTC/KAVA-BTC.csv', help='KAVABTC datafile')
-    parser.add_argument('-ZEC', type=str, default='data/ZEC-BTC/ZEC-BTC.csv', help='ZECBTC datafile')
+    parser.add_argument('-LINK', type=str, default='data/LINK-EUR/LINK-EUR.csv', help='LINKEUR datafile')
+    parser.add_argument('-AVAX', type=str, default='data/AVAX-EUR/AVAX-EUR.csv', help='AVAXEUR datafile')
+    parser.add_argument('-DOT', type=str, default='data/DOT-JPY/DOT-JPY.csv', help='DOTJPY datafile')
 
-    parser.add_argument('-lifespan', type=int, default=5, help='lifespan of the trade in days')
-    parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
-    parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
-    parser.add_argument('-ema', type=int, default=50, help='periods used for calculating EMA')
-    parser.add_argument('-rsi', type=int, default=14, help='periods used for calculating RSI')
-    parser.add_argument('-sto', type=int, default=[14, 3], nargs=2, help='periods used for calculating STO')
-    parser.add_argument('-sma', type=int, default=50, help='periods used for calculating SMA')
-    parser.add_argument('-wma', type=int, default=20, help='periods used for calculating WMA')
-    parser.add_argument('-dmi', type=int, default=14, help='periods used for calculating DMI')
-    parser.add_argument('-blg', type=int, default=[20, 2], nargs=2, help='periods and nb_stddev used for calculating Bollingers bands')
-    parser.add_argument('-macd', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating MACD')
-    parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
-    parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
+    parser.add_argument('-lifespan', type=int, default=GetArg('lifespan'), help='lifespan of the trade in days')
+    parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
+    parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
+    parser.add_argument('-ema', type=int, default=GetArg('ema'), help='periods used for calculating EMA')
+    parser.add_argument('-rsi', type=int, default=GetArg('rsi'), help='periods used for calculating RSI')
+    parser.add_argument('-sto', type=int, default=GetArg('sto'), nargs=2, help='periods used for calculating STO')
+    parser.add_argument('-sma', type=int, default=GetArg('sma'), help='periods used for calculating SMA')
+    parser.add_argument('-wma', type=int, default=GetArg('wma'), help='periods used for calculating WMA')
+    parser.add_argument('-dmi', type=int, default=GetArg('dmi'), help='periods used for calculating DMI')
+    parser.add_argument('-blg', type=int, default=GetArg('blg'), nargs=2, help='periods and nb_stddev used for calculating Bollingers bands')
+    parser.add_argument('-macd', type=int, default=GetArg('macd'), nargs=3, help='periods(short, long, signal) used for calculating MACD')
+    parser.add_argument('-cci', type=int, default=GetArg('cci'), help='periods used for calculating CCI')
+    parser.add_argument('-ppo', type=int, default=GetArg('ppo'), nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-    error_check('BTC-USD')
-    error_check('ETH-USD')
-    error_check('BNB-USD')
+
+#    error_check('BTC-USD')
     return args
 
 def error_check(currency_pair):

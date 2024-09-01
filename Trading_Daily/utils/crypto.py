@@ -5,8 +5,8 @@ def ActiveCryptos():
         'SOL-USD',
         'BNB-USD',
         'ADA-USD',
-        'DASH-BTC',
-        'KAVA-BTC',
-        'ZEC-BTC'
+        'LINK-EUR',
+        'AVAX-EUR',
+        'DOT-JPY'
     ]
     return active_cryptos

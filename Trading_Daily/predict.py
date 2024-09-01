@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.log import printLog, printError
 from utils.dataframe import ReadDf
+from utils.arguments import GetArg
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -18,24 +19,24 @@ def parsing():
     parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNB-USD datafile')
     parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOL-USD datafile')
     parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADA-USD datafile')
-    parser.add_argument('-DASH', type=str, default='data/DASH-BTC/DASH-BTC.csv', help='DASHBTC datafile')
-    parser.add_argument('-KAVA', type=str, default='data/KAVA-BTC/KAVA-BTC.csv', help='KAVABTC datafile')
-    parser.add_argument('-ZEC', type=str, default='data/ZEC-BTC/ZEC-BTC.csv', help='ZECBTC datafile')
+    parser.add_argument('-LINK', type=str, default='data/LINK-EUR/LINK-EUR.csv', help='LINKEUR datafile')
+    parser.add_argument('-AVAX', type=str, default='data/AVAX-EUR/AVAX-EUR.csv', help='AVAXEUR datafile')
+    parser.add_argument('-DOT', type=str, default='data/DOT-JPY/DOT-JPY.csv', help='DOTJPY datafile')
 
     parser.add_argument('-date', type=str, default=None, help='prediction date')
-    parser.add_argument('-risk', type=float, default=0.3, help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=0.9, help='percentage of capital for the take-profit')
-    parser.add_argument('-atr', type=int, default=14, help='periods used for calculating ATR')
-    parser.add_argument('-ema', type=int, default=50, help='periods used for calculating EMA')
-    parser.add_argument('-rsi', type=int, default=14, help='periods used for calculating RSI')
-    parser.add_argument('-sto', type=int, default=[14, 3], nargs=2, help='periods used for calculating STO')
-    parser.add_argument('-sma', type=int, default=50, help='periods used for calculating SMA')
-    parser.add_argument('-wma', type=int, default=20, help='periods used for calculating WMA')
-    parser.add_argument('-dmi', type=int, default=14, help='periods used for calculating DMI')
-    parser.add_argument('-blg', type=int, default=[20, 2], nargs=2, help='periods and nb_stddev used for calculating Bollingers bands')
-    parser.add_argument('-macd', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating MACD')
-    parser.add_argument('-cci', type=int, default=20, help='periods used for calculating CCI')
-    parser.add_argument('-ppo', type=int, default=[12, 26, 9], nargs=3, help='periods(short, long, signal) used for calculating PPO')
+    parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
+    parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
+    parser.add_argument('-ema', type=int, default=GetArg('ema'), help='periods used for calculating EMA')
+    parser.add_argument('-rsi', type=int, default=GetArg('rsi'), help='periods used for calculating RSI')
+    parser.add_argument('-sto', type=int, default=GetArg('sto'), nargs=2, help='periods used for calculating STO')
+    parser.add_argument('-sma', type=int, default=GetArg('sma'), help='periods used for calculating SMA')
+    parser.add_argument('-wma', type=int, default=GetArg('wma'), help='periods used for calculating WMA')
+    parser.add_argument('-dmi', type=int, default=GetArg('dmi'), help='periods used for calculating DMI')
+    parser.add_argument('-blg', type=int, default=GetArg('blg'), nargs=2, help='periods and nb_stddev used for calculating Bollingers bands')
+    parser.add_argument('-macd', type=int, default=GetArg('macd'), nargs=3, help='periods(short, long, signal) used for calculating MACD')
+    parser.add_argument('-cci', type=int, default=GetArg('cci'), help='periods used for calculating CCI')
+    parser.add_argument('-ppo', type=int, default=GetArg('ppo'), nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()    
     
     error_check('BTC-USD')
@@ -63,11 +64,10 @@ def print_predictions(currency, stop_loss, take_profit, open, predictions_rf, pr
                         and predictions_mlp[0] == 'W'\
                         else 'Lose'
         printLog(f'\n=========   PREDICTION {currency}  =========')
-        printLog(f'====> {prediction}')
-#        if prediction == 'Win':    
+        printLog(f'======> {prediction}')  
         printLog(f'  OPEN == {open}')
         printLog(f'  SL == {stop_loss}')
-        printLog(f'  TP == {take_profit}')
+        printLog(f'  TP == {take_profit}/n')
 
 
 def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
@@ -129,17 +129,17 @@ if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
         dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ADA-USD')
         make_predictions(dataframe, 'ADA-USD', stop_loss, take_profit, open)
 
-#        dataframe = ReadDf(args.DASH)
-#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'DASH-BTC')
-#        make_predictions(dataframe, 'DASH-BTC', stop_loss, take_profit, open)
-#
-#        dataframe = ReadDf(args.KAVA)
-#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'KAVA-BTC')
-#        make_predictions(dataframe, 'KAVA-BTC', stop_loss, take_profit, open)
-#
-#        dataframe = ReadDf(args.ZEC)
-#        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ZEC-BTC')
-#        make_predictions(dataframe, 'ZEC-BTC', stop_loss, take_profit, open)
+        dataframe = ReadDf(args.LINK)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'LINK-EUR')
+        make_predictions(dataframe, 'LINK-EUR', stop_loss, take_profit, open)
+
+        dataframe = ReadDf(args.AVAX)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'AVAX-EUR')
+        make_predictions(dataframe, 'AVAX-EUR', stop_loss, take_profit, open)
+
+        dataframe = ReadDf(args.DOT)
+        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'DOT-JPY')
+        make_predictions(dataframe, 'DOT-JPY', stop_loss, take_profit, open)
  
     except Exception as error:
         printError(error)
