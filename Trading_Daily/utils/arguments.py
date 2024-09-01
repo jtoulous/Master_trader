@@ -38,6 +38,8 @@ def GetOpen(args, dataframe, crypto):
     else:
         date = dataframe.iloc[-1]['DATETIME'] + pd.DateOffset(days=1)
     data = yf.download(crypto, start=date, interval='1d')
+    if len(data) < 1:    
+        return dataframe.iloc[-1]['CLOSE']
     return data.iloc[0]['Open']
 
 def GetDate(args, dataframe):
