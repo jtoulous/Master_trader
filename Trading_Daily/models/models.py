@@ -18,7 +18,7 @@ from imblearn.over_sampling import RandomOverSampler
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
-def GradientBoosting(df, currency_pair):
+def GradientBoosting(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
         X, y = GetXnY(df.copy())
         print(' ===> Done')
@@ -34,11 +34,12 @@ def GradientBoosting(df, currency_pair):
 
         model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, random_state=42)
  
-        print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
-        print(f'   ==> Cross-Validation Scores: {scores}')
-        print(f'   ==> Average Accuracy: {scores.mean()}')
-        print(' ===> Done')
+        if crossval == True:
+                print(' ===> Cross validation...')
+                scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
+                print(f'   ==> Cross-Validation Scores: {scores}')
+                print(f'   ==> Average Accuracy: {scores.mean()}')
+                print(' ===> Done')
 
         print(' ===> Training...')
         model.fit(X_resampled, y_resampled)
@@ -49,7 +50,7 @@ def GradientBoosting(df, currency_pair):
         print(f' ===> Done{Style.RESET_ALL}')
 
 
-def LogReg(df, currency_pair):
+def LogReg(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
         X, y = GetXnY(df.copy())
         print(' ===> Done')
@@ -65,11 +66,12 @@ def LogReg(df, currency_pair):
 
         model = LogisticRegression(max_iter=1000)
         
-        print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
-        print(f'   ==> Cross-Validation Scores: {scores}')
-        print(f'   ==> Average Accuracy: {scores.mean()}')
-        print(' ===> Done')
+        if crossval == True:
+                print(' ===> Cross validation...')
+                scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
+                print(f'   ==> Cross-Validation Scores: {scores}')
+                print(f'   ==> Average Accuracy: {scores.mean()}')
+                print(' ===> Done')
         
         print(' ===> Training logistic regression...')
         model.fit(X_resampled, y_resampled)
@@ -80,7 +82,7 @@ def LogReg(df, currency_pair):
         print(f' ===> Done{Style.RESET_ALL}')
 
 
-def MLP(df, currency_pair):
+def MLP(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
         X, y = GetXnY(df.copy())
         print(' ===> Done')
@@ -108,11 +110,12 @@ def MLP(df, currency_pair):
             verbose=False
         )
         
-        print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
-        print(f'   ==> Cross-Validation Scores: {scores}')
-        print(f'   ==> Average Accuracy: {scores.mean()}')
-        print(' ===> Done')
+        if crossval == True:
+                print(' ===> Cross validation...')
+                scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
+                print(f'   ==> Cross-Validation Scores: {scores}')
+                print(f'   ==> Average Accuracy: {scores.mean()}')
+                print(' ===> Done')
         
         print(' ===> Training MLP...')
         model.fit(X_resampled, y_resampled)
@@ -123,7 +126,7 @@ def MLP(df, currency_pair):
         print(f' ===> Done{Style.RESET_ALL}')
 
 
-def RFClassifier(df, currency_pair):
+def RFClassifier(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
         X, y = GetXnY(df.copy())
         print(' ===> Done')
@@ -139,11 +142,12 @@ def RFClassifier(df, currency_pair):
 
         model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-        print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
-        print(f'   ==> Cross-Validation Scores: {scores}')
-        print(f'   ==> Average Accuracy: {scores.mean()}')
-        print(' ===> Done')
+        if crossval == True:
+                print(' ===> Cross validation...')
+                scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
+                print(f'   ==> Cross-Validation Scores: {scores}')
+                print(f'   ==> Average Accuracy: {scores.mean()}')
+                print(' ===> Done')
 
         print(' ===> Training forest classifier...')
         model.fit(X_resampled, y_resampled)
@@ -154,7 +158,7 @@ def RFClassifier(df, currency_pair):
         print(f' ===> Done{Style.RESET_ALL}')
 
 
-def XGB(df, currency_pair):
+def XGB(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
         X, y = GetXnY(df.copy())
         print(' ===> Done')
@@ -174,12 +178,13 @@ def XGB(df, currency_pair):
         print(' ===> Done')
 
         model = xgb.XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
-        
-        print(' ===> Cross validation...')
-        scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
-        print(f'   ==> Cross-Validation Scores: {scores}')
-        print(f'   ==> Average Accuracy: {scores.mean()}')
-        print(' ===> Done')
+
+        if crossval == True:     
+                print(' ===> Cross validation...')
+                scores = cross_val_score(model, X_resampled, y_resampled, cv=5)
+                print(f'   ==> Cross-Validation Scores: {scores}')
+                print(f'   ==> Average Accuracy: {scores.mean()}')
+                print(' ===> Done')
 
         print(' ===> Training xgb...')
         model.fit(X_resampled, y_resampled)

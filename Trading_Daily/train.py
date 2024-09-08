@@ -5,17 +5,19 @@ import joblib
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
 from utils.log import printLog, printError, printHeader
-from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
 
 def parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
     )
+    parser.add_argument('-crossval', action='store_true', help='run cross validation at training')
     parser.add_argument('-test', action='store_true', help='run training on test_train.csv instead')
+
     parser.add_argument('-lifespan', type=int, default=GetArg('lifespan'), help='lifespan of the trade in days')
-    parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
+    parser.add_argument('-risk', type=float, default=0, help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=0, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
     parser.add_argument('-ema', type=int, default=GetArg('ema'), help='periods used for calculating EMA')
     parser.add_argument('-rsi', type=int, default=GetArg('rsi'), help='periods used for calculating RSI')
@@ -30,25 +32,25 @@ def parsing():
     return parser.parse_args()
 
 
-def trainModels(dataframe, currency_pair, scaler):
+def trainModels(dataframe, currency_pair, scaler, crossval):
     printLog('\nTRAINING GRADIENT BOOSTING MODEL...')
-    GradientBoosting(dataframe, currency_pair)
+    GradientBoosting(dataframe, currency_pair, crossval)
     printLog('GRADIENT BOOSTING MODEL DONE\n')
 
     printLog('TRAINING MLP MODEL...')
-    MLP(dataframe, currency_pair)
+    MLP(dataframe, currency_pair, crossval)
     printLog('MLP MODEL DONE\n')
 
     printLog('TRAINING LOGISTIC REGRESSION MODEL...')
-    LogReg(dataframe, currency_pair)
+    LogReg(dataframe, currency_pair, crossval)
     printLog('LOGISTIC REGRESSION MODEL DONE\n')
 
     printLog('TRAINING RANDOM FOREST CLASSIFIER MODEL...')
-    RFClassifier(dataframe, currency_pair)
+    RFClassifier(dataframe, currency_pair, crossval)
     printLog('RANDOM FOREST CLASSIFIER MODEL DONE\n')
 
     printLog('TRAINING XGB MODEL...')
-    XGB(dataframe, currency_pair)
+    XGB(dataframe, currency_pair, crossval)
     printLog('XGB MODEL DONE\n')
 
     joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}.joblib')
@@ -59,10 +61,11 @@ if __name__ == '__main__':
         args = parsing()
 
         for crypto in ActiveCryptos():
+            args = UpdateArgs(args, crypto)
             printHeader(f'{crypto}')
             file = GetCryptoFile(crypto) if args.test is False else GetCryptoFile(crypto, file_type='test train')
             dataframe, scaler = preprocessing_train(args, file)
-            trainModels(dataframe, crypto, scaler)
+            trainModels(dataframe, crypto, scaler, args.crossval)
 
 
     except Exception as error:

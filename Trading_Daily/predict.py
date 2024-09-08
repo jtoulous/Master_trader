@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.log import printLog, printError
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -16,8 +16,8 @@ def parsing():
     )
     parser.add_argument('-old', action='store_true', help='old date')
     parser.add_argument('-date', type=str, default=None, help='prediction date')
-    parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
+    parser.add_argument('-risk', type=float, default=0, help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=0, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
     parser.add_argument('-ema', type=int, default=GetArg('ema'), help='periods used for calculating EMA')
     parser.add_argument('-rsi', type=int, default=GetArg('rsi'), help='periods used for calculating RSI')
@@ -42,7 +42,7 @@ def error_check(currency):
         raise Exception(f'error: train {currency} models before making {currency} predictions')
 
 
-def print_predictions(currency, stop_loss, take_profit, open, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
+def print_predictions(currency, stop_loss, take_profit, open_pos, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
         prediction = 'Win' if predictions_rf[0] == 'W'\
                         and predictions_gb[0] == 'W'\
                         and predictions_lr[0] == 'W'\
@@ -51,12 +51,12 @@ def print_predictions(currency, stop_loss, take_profit, open, predictions_rf, pr
                         else 'Lose'
         printLog(f'\n=========   PREDICTION {currency}  =========')
         printLog(f'======> {prediction}')  
-        printLog(f'  OPEN == {open}')
+        printLog(f'  OPEN == {open_pos}')
         printLog(f'  SL == {stop_loss}')
         printLog(f'  TP == {take_profit}\n')
 
 
-def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
+def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos):
     features = list(dataframe.columns)
     features.remove('DATETIME')
     features.remove('HIGH')
@@ -87,7 +87,7 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
     predictions_mlp = mlp.predict(X)
     predictions_xgb = label_encoder.inverse_transform(xgb.predict(X))
 
-    print_predictions(currency_pair, stop_loss, take_profit, open, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
+    print_predictions(currency_pair, stop_loss, take_profit, open_pos, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
 
 
 if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
@@ -95,9 +95,10 @@ if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
         args = parsing()
 
         for crypto in ActiveCryptos():
+            args = UpdateArgs(args, crypto)
             dataframe = ReadDf(GetCryptoFile(crypto))
-            dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, crypto)
-            make_predictions(dataframe, crypto, stop_loss, take_profit, open)
+            dataframe, stop_loss, take_profit, open_pos = preprocessing_predict(args, dataframe, crypto)
+            make_predictions(dataframe, crypto, stop_loss, take_profit, open_pos)
 
  
     except Exception as error:

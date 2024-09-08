@@ -6,7 +6,7 @@ import joblib
 from utils.preprocessing import preprocessing_test
 from utils.log import printLog, printError, printHeader
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -14,8 +14,8 @@ def parsing():
         description='predictive model for trading'
     )
     parser.add_argument('-lifespan', type=int, default=GetArg('lifespan'), help='lifespan of the trade in days')
-    parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
-    parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
+    parser.add_argument('-risk', type=float, default=0, help='percentage of capital for the stop-loss')
+    parser.add_argument('-profit', type=float, default=0, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
     parser.add_argument('-ema', type=int, default=GetArg('ema'), help='periods used for calculating EMA')
     parser.add_argument('-rsi', type=int, default=GetArg('rsi'), help='periods used for calculating RSI')
@@ -28,8 +28,6 @@ def parsing():
     parser.add_argument('-cci', type=int, default=GetArg('cci'), help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=GetArg('ppo'), nargs=3, help='periods(short, long, signal) used for calculating PPO')
     args = parser.parse_args()
-
-#    error_check('BTC-USD')
     return args
 
 def error_check(currency_pair):
@@ -145,6 +143,7 @@ if __name__ == '__main__':
         pred_stats = {}
 
         for crypto in ActiveCryptos():
+            args = UpdateArgs(args, crypto)
             printHeader(crypto)
             dataframe = ReadDf(GetCryptoFile(crypto, file_type='test predict'))
             dataframe = preprocessing_test(args, dataframe)
