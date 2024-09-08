@@ -94,12 +94,16 @@ def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predict
         return (numerator / denominator) * 100 if denominator != 0 else 0
 
     final_stats = (
-        f'\nTRUE WIN ACCURACY ===> {safe_divide(total_true_win, total_win_pred)}%  ({total_true_win})'
-        f'\nFALSE WIN ACCURACY ===> {safe_divide(total_false_win, total_win_pred)}%  ({total_false_win})'
-        f'\nTRUE LOSS ACCURACY ===> {safe_divide(total_true_lose, total_lose_pred)}%  ({total_true_lose})'
-        f'\nFALSE LOSS ACCURACY ===> {safe_divide(total_false_lose, total_lose_pred)}%  ({total_false_lose})\n'
-        f'TOTAL ACCURACY ===> {safe_divide(total_good_pred, len(y))}% correct'
+        f'\nTRUE WIN ACCURACY ===> {total_true_win} / {total_false_win}'
     )
+
+#    final_stats = (
+#        f'\nTRUE WIN ACCURACY ===> {safe_divide(total_true_win, total_win_pred)}%  ({total_true_win})'
+#        f'\nFALSE WIN ACCURACY ===> {safe_divide(total_false_win, total_win_pred)}%  ({total_false_win})'
+#        f'\nTRUE LOSS ACCURACY ===> {safe_divide(total_true_lose, total_lose_pred)}%  ({total_true_lose})'
+#        f'\nFALSE LOSS ACCURACY ===> {safe_divide(total_false_lose, total_lose_pred)}%  ({total_false_lose})\n'
+#        f'TOTAL ACCURACY ===> {safe_divide(total_good_pred, len(y))}% correct'
+#    )
     return final_stats
 
 
