@@ -3,7 +3,7 @@ import yfinance as yf
 import subprocess
 
 from utils.log import printLog, printError
-from utils.crypto import ActiveCryptos
+from utils.arguments import ActiveCryptos
 from utils.dataframe import ReadDf, CleanDf
 
 if __name__ == '__main__':

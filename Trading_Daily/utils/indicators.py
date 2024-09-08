@@ -205,6 +205,7 @@ def feature_engineering(dataframe):
     return dataframe
 
 def calc_indicators(dataframe, args):
+    printLog('Calculating indicators...')
     dataframe = date_to_features(dataframe)
     dataframe = ATR(dataframe, args.atr)
     dataframe = EMA(dataframe, args.ema)
@@ -220,4 +221,5 @@ def calc_indicators(dataframe, args):
     dataframe = PPO(dataframe, args.ppo)
     dataframe = ROC(dataframe)
     dataframe = feature_engineering(dataframe)
+    printLog('Done')
     return dataframe

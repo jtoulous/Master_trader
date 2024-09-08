@@ -6,22 +6,13 @@ import joblib
 from utils.preprocessing import preprocessing_test
 from utils.log import printLog, printError, printHeader
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
 
 def parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTC', type=str, default='data/BTC-USD/test_predict.csv', help='BTCUSD datafile')
-    parser.add_argument('-ETH', type=str, default='data/ETH-USD/test_predict.csv', help='ETHUSD datafile')
-    parser.add_argument('-BNB', type=str, default='data/BNB-USD/test_predict.csv', help='BNBUSD datafile')
-    parser.add_argument('-SOL', type=str, default='data/SOL-USD/test_predict.csv', help='SOLUSD datafile')
-    parser.add_argument('-ADA', type=str, default='data/ADA-USD/test_predict.csv', help='ADAUSD datafile')
-    parser.add_argument('-LINK', type=str, default='data/LINK-EUR/LINK-EUR.csv', help='LINKEUR datafile')
-    parser.add_argument('-AVAX', type=str, default='data/AVAX-EUR/AVAX-EUR.csv', help='AVAXEUR datafile')
-    parser.add_argument('-DOT', type=str, default='data/DOT-JPY/DOT-JPY.csv', help='DOTJPY datafile')
-
     parser.add_argument('-lifespan', type=int, default=GetArg('lifespan'), help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
@@ -50,6 +41,23 @@ def error_check(currency_pair):
     or not os.path.exists(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl'):
         raise Exception(f'error: train {currency_pair} models before making {currency_pair} predictions')
 
+def Majority_Prediction(*predictions):
+    win_count = 0
+    lose_count = 0
+    for pred in predictions:
+        if pred == 'W':
+            win_count += 1
+        elif pred == 'L':
+            lose_count += 1
+    if win_count > lose_count:
+        return 'W'
+    return 'L'
+    
+def Unanimity_Prediction(*predictions):
+    for pred in predictions:
+        if pred != 'W':
+            return 'L'
+    return 'W'
 
 def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
     total_good_pred = 0
@@ -60,13 +68,10 @@ def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predict
     total_false_win = 0
     total_true_lose = 0
     total_false_lose = 0
+
     for i in range(len(y)):
-        prediction = 'W' if predictions_rf[i] == 'W'\
-                        and predictions_gb[i] == 'W'\
-                        and predictions_lr[i] == 'W'\
-                        and predictions_xgb[i] == 'W'\
-                        and predictions_mlp[i] == 'W'\
-                        else 'L'
+        # prediction = Majority_Prediction(predictions_rf[i], predictions_gb[i], predictions_lr[i], predictions_mlp[i], predictions_xgb[i])
+        prediction = Unanimity_Prediction(predictions_rf[i], predictions_gb[i], predictions_lr[i], predictions_mlp[i], predictions_xgb[i])
         if prediction == 'W':
             total_win_pred += 1
         else:
@@ -78,21 +83,24 @@ def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predict
                 total_true_win += 1
             else:
                 total_true_lose += 1
-            printLog(f'{y[i]} ===> {prediction}')
+            # printLog(f'{y[i]} ===> {prediction}')
 
         else:
             if prediction == 'W':
                 total_false_win += 1
             else:
                 total_false_lose += 1
-            printError(f'{y[i]} ===> {prediction}')
+            # printError(f'{y[i]} ===> {prediction}')
+
+    def safe_divide(numerator, denominator):
+        return (numerator / denominator) * 100 if denominator != 0 else 0
 
     final_stats = (
-            f'\nTRUE WIN ACCURACY ===> {(total_true_win / total_win_pred) * 100}%  ({total_true_win})'
-            f'\nFALSE WIN ACCURACY ===> {(total_false_win / total_win_pred) * 100}%  ({total_false_win})'
-            f'\nTRUE LOSS ACCURACY ===> {(total_true_lose / total_lose_pred) * 100}%  ({total_true_lose})'
-            f'\nFALSE LOSS ACCURACY ===> {(total_false_lose / total_lose_pred) * 100}%  ({total_false_lose})\n'
-            f'TOTAL ACCURACY ===> {(total_good_pred / len(y)) * 100}% correct'
+        f'\nTRUE WIN ACCURACY ===> {safe_divide(total_true_win, total_win_pred)}%  ({total_true_win})'
+        f'\nFALSE WIN ACCURACY ===> {safe_divide(total_false_win, total_win_pred)}%  ({total_false_win})'
+        f'\nTRUE LOSS ACCURACY ===> {safe_divide(total_true_lose, total_lose_pred)}%  ({total_true_lose})'
+        f'\nFALSE LOSS ACCURACY ===> {safe_divide(total_false_lose, total_lose_pred)}%  ({total_false_lose})\n'
+        f'TOTAL ACCURACY ===> {safe_divide(total_good_pred, len(y))}% correct'
     )
     return final_stats
 
@@ -136,50 +144,15 @@ if __name__ == '__main__':
         args = parsing()
         pred_stats = {}
 
-        printHeader('BTCUSD')
-        dataframe = ReadDf(args.BTC)
-        dataframe = preprocessing_test(args, dataframe)
-        pred_stats['BTCUSD'] = make_test_predictions(dataframe, 'BTC-USD')
+        for crypto in ActiveCryptos():
+            printHeader(crypto)
+            dataframe = ReadDf(GetCryptoFile(crypto, file_type='test predict'))
+            dataframe = preprocessing_test(args, dataframe)
+            pred_stats[crypto] = make_test_predictions(dataframe, crypto)
 
-        printHeader('ETHUSD')
-        dataframe = ReadDf(args.ETH)
-        dataframe = preprocessing_test(args, dataframe)
-        pred_stats['ETHUSD'] = make_test_predictions(dataframe, 'ETH-USD')
-
-        printHeader('BNBUSD')
-        dataframe = ReadDf(args.BNB)
-        dataframe = preprocessing_test(args, dataframe)
-        pred_stats['BNBUSD'] = make_test_predictions(dataframe, 'BNB-USD')
-
-        printHeader('SOLUSD')
-        dataframe = ReadDf(args.SOL)
-        dataframe = preprocessing_test(args, dataframe)
-        pred_stats['SOLUSD'] = make_test_predictions(dataframe, 'SOL-USD')
-
-        printHeader('ADAUSD')
-        dataframe = ReadDf(args.ADA)
-        dataframe = preprocessing_test(args, dataframe)
-        pred_stats['ADAUSD'] = make_test_predictions(dataframe, 'ADA-USD')
-
-#        printHeader('DASHBTC')
-#        dataframe = ReadDf(args.DASH)
-#        dataframe = preprocessing_test(args, dataframe)
-#        pred_stats['DASHBTC'] = make_test_predictions(dataframe, 'DASH-BTC')
-#
-#        printHeader('KAVABTC')
-#        dataframe = ReadDf(args.KAVA)
-#        dataframe = preprocessing_test(args, dataframe)
-#        pred_stats['KAVABTC'] = make_test_predictions(dataframe, 'KAVA-BTC')
-#
-#        printHeader('ZECBTC')
-#        dataframe = ReadDf(args.ZEC)
-#        dataframe = preprocessing_test(args, dataframe)
-#        pred_stats['ZECBTC'] = make_test_predictions(dataframe, 'ZEC-BTC')
-
-
-        for currency in pred_stats.keys():
-            printLog(f'\n\n==============   {currency}   ==============')
-            printLog(f'{pred_stats[currency]}')
+        for crypto in pred_stats.keys():
+            printLog(f'\n\n==============   {crypto}   ==============')
+            printLog(f'{pred_stats[crypto]}')
 
     except Exception as error:
         printError(error)

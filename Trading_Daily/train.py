@@ -5,22 +5,14 @@ import joblib
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
 from utils.preprocessing import preprocessing_train
 from utils.log import printLog, printError, printHeader
-from utils.arguments import GetArg
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
 
 def parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTC', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTCUSD datafile')
-    parser.add_argument('-ETH', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETHUSD datafile')
-    parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNBUSD datafile')
-    parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOLUSD datafile')
-    parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADAUSD datafile')
-    parser.add_argument('-LINK', type=str, default='data/LINK-EUR/LINK-EUR.csv', help='LINKEUR datafile')
-    parser.add_argument('-AVAX', type=str, default='data/AVAX-EUR/AVAX-EUR.csv', help='AVAXEUR datafile')
-    parser.add_argument('-DOT', type=str, default='data/DOT-JPY/DOT-JPY.csv', help='DOTJPY datafile')
-
+    parser.add_argument('-test', action='store_true', help='run training on test_train.csv instead')
     parser.add_argument('-lifespan', type=int, default=GetArg('lifespan'), help='lifespan of the trade in days')
     parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
@@ -66,37 +58,12 @@ if __name__ == '__main__':
     try:
         args = parsing()
 
-        printHeader('BTC-USD')
-        dataframe, scaler = preprocessing_train(args, args.BTC)
-        trainModels(dataframe, 'BTC-USD', scaler)
+        for crypto in ActiveCryptos():
+            printHeader(f'{crypto}')
+            file = GetCryptoFile(crypto) if args.test is False else GetCryptoFile(crypto, file_type='test train')
+            dataframe, scaler = preprocessing_train(args, file)
+            trainModels(dataframe, crypto, scaler)
 
-        printHeader('ETH-USD')
-        dataframe, scaler = preprocessing_train(args, args.ETH)
-        trainModels(dataframe, 'ETH-USD', scaler)
-        
-        printHeader('BNB-USD')
-        dataframe, scaler = preprocessing_train(args, args.BNB)
-        trainModels(dataframe, 'BNB-USD', scaler)
-
-        printHeader('SOL-USD')
-        dataframe, scaler = preprocessing_train(args, args.SOL)
-        trainModels(dataframe, 'SOL-USD', scaler)
-
-        printHeader('ADA-USD')
-        dataframe, scaler = preprocessing_train(args, args.ADA)
-        trainModels(dataframe, 'ADA-USD', scaler)
-
-        printHeader('LINK-EUR')
-        dataframe, scaler = preprocessing_train(args, args.LINK)
-        trainModels(dataframe, 'LINK-EUR', scaler)
-
-        printHeader('AVAX-EUR')
-        dataframe, scaler = preprocessing_train(args, args.AVAX)
-        trainModels(dataframe, 'AVAX-EUR', scaler)
-
-        printHeader('DOT-JPY')
-        dataframe, scaler = preprocessing_train(args, args.DOT)
-        trainModels(dataframe, 'DOT-JPY', scaler)
 
     except Exception as error:
         printError(error)

@@ -16,6 +16,7 @@ def Cross_Val(model, X, y, cv, pred_type):
 
 
 def Estimate(dataframe, args, pred_type):
+    date = pd.to_datetime(args.date, format='%d/%m/%Y')
     df = dataframe.copy()
     df = date_to_features(df)
     df = ATR(df, args.atr)
@@ -40,7 +41,8 @@ def Estimate(dataframe, args, pred_type):
     label_scale = scaler.scale_[features.index('LABEL')]
 
     features.remove('LABEL')
-    X_predict = df.tail(1)[features].copy()
+    X_predict = df[features][df['DATETIME'] == date]
+    # X_predict = df.tail(1)[features].copy()
     X_train = df.iloc[:-1][features]
     y_train = df.iloc[:-1]['LABEL']
 

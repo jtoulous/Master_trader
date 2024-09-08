@@ -18,19 +18,20 @@ def CleanRepo(repo):
     files = os.listdir(repo)
     for file in files:
         path = repo + '/' + file
-        df = pd.read_csv(path)
-        df.rename(columns={
-            'Date': 'DATETIME',
-            'Open': 'OPEN',
-            'High': 'HIGH',
-            'Low': 'LOW',
-            'Close': 'CLOSE',
-            'Volume': 'VOLUME'
-        }, inplace=True)    
-        df = df.drop(columns=['Adj Close'])
-        df['DATETIME'] = pd.to_datetime(df['DATETIME'])
-        df_sorted = df.sort_values(by='DATETIME')
-        df_sorted.to_csv(path, index=False)
+        if os.path.isfile(path):
+            df = pd.read_csv(path)
+            df.rename(columns={
+                'Date': 'DATETIME',
+                'Open': 'OPEN',
+                'High': 'HIGH',
+                'Low': 'LOW',
+                'Close': 'CLOSE',
+                'Volume': 'VOLUME'
+            }, inplace=True)    
+            df = df.drop(columns=['Adj Close'])
+            df['DATETIME'] = pd.to_datetime(df['DATETIME'])
+            df_sorted = df.sort_values(by='DATETIME')
+            df_sorted.to_csv(path, index=False)
 
 
 def CleanFile(file):

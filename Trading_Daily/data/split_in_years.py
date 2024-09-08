@@ -1,7 +1,7 @@
 import pandas as pd
 
 from utils.log import printError
-from utils.crypto import ActiveCryptos
+from utils.arguments import ActiveCryptos
 from utils.dataframe import ReadDf
 
 if __name__ == '__main__':

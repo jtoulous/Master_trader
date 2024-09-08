@@ -7,22 +7,14 @@ from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.log import printLog, printError
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile
 
 def parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
     )
-    parser.add_argument('-BTC', type=str, default='data/BTC-USD/BTC-USD.csv', help='BTC-USD datafile')
-    parser.add_argument('-ETH', type=str, default='data/ETH-USD/ETH-USD.csv', help='ETH-USD datafile')
-    parser.add_argument('-BNB', type=str, default='data/BNB-USD/BNB-USD.csv', help='BNB-USD datafile')
-    parser.add_argument('-SOL', type=str, default='data/SOL-USD/SOL-USD.csv', help='SOL-USD datafile')
-    parser.add_argument('-ADA', type=str, default='data/ADA-USD/ADA-USD.csv', help='ADA-USD datafile')
-    parser.add_argument('-LINK', type=str, default='data/LINK-EUR/LINK-EUR.csv', help='LINKEUR datafile')
-    parser.add_argument('-AVAX', type=str, default='data/AVAX-EUR/AVAX-EUR.csv', help='AVAXEUR datafile')
-    parser.add_argument('-DOT', type=str, default='data/DOT-JPY/DOT-JPY.csv', help='DOTJPY datafile')
-
+    parser.add_argument('-old', action='store_true', help='old date')
     parser.add_argument('-date', type=str, default=None, help='prediction date')
     parser.add_argument('-risk', type=float, default=GetArg('risk'), help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=GetArg('profit'), help='percentage of capital for the take-profit')
@@ -37,13 +29,7 @@ def parsing():
     parser.add_argument('-macd', type=int, default=GetArg('macd'), nargs=3, help='periods(short, long, signal) used for calculating MACD')
     parser.add_argument('-cci', type=int, default=GetArg('cci'), help='periods used for calculating CCI')
     parser.add_argument('-ppo', type=int, default=GetArg('ppo'), nargs=3, help='periods(short, long, signal) used for calculating PPO')
-    args = parser.parse_args()    
-    
-    error_check('BTC-USD')
-    error_check('ETH-USD')
-    error_check('SOL-USD')
-    error_check('BNB-USD')
-    error_check('ADA-USD')
+    args = parser.parse_args()
     return args
 
 def error_check(currency):
@@ -67,7 +53,7 @@ def print_predictions(currency, stop_loss, take_profit, open, predictions_rf, pr
         printLog(f'======> {prediction}')  
         printLog(f'  OPEN == {open}')
         printLog(f'  SL == {stop_loss}')
-        printLog(f'  TP == {take_profit}/n')
+        printLog(f'  TP == {take_profit}\n')
 
 
 def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
@@ -79,7 +65,6 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
     features.remove('VOLUME')
     if 'LABEL' in features:
         features.remove('LABEL')
-#    X = dataframe[features]
 
     random_forest = joblib.load(f'models/architectures/random_forest_model_{currency_pair}.pkl')
     gradient_boosting = joblib.load(f'models/architectures/gradient_boosting_{currency_pair}.pkl')
@@ -92,10 +77,10 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
     features_df = dataframe[features]
     scaled_features = scaler.transform(features_df)
     scaled_features_df =  pd.DataFrame(scaled_features, columns=features)
-    dataframe[features] = scaled_features_df
-#    breakpoint()
+#    dataframe[features] = scaled_features_df
+#    X = dataframe[features]
 
-    X = dataframe[features]
+    X = scaled_features_df
     predictions_rf = random_forest.predict(X)
     predictions_gb = gradient_boosting.predict(X)
     predictions_lr = logreg.predict(X)
@@ -108,38 +93,12 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open):
 if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
     try:    
         args = parsing()
-        
-        dataframe = ReadDf(args.BTC)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'BTC-USD')
-        make_predictions(dataframe, 'BTC-USD', stop_loss, take_profit, open)
-            
-        dataframe = ReadDf(args.ETH)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ETH-USD')
-        make_predictions(dataframe, 'ETH-USD', stop_loss, take_profit, open)
 
-        dataframe = ReadDf(args.BNB)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'BNB-USD')
-        make_predictions(dataframe, 'BNB-USD', stop_loss, take_profit, open)
+        for crypto in ActiveCryptos():
+            dataframe = ReadDf(GetCryptoFile(crypto))
+            dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, crypto)
+            make_predictions(dataframe, crypto, stop_loss, take_profit, open)
 
-        dataframe = ReadDf(args.SOL)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'SOL-USD')
-        make_predictions(dataframe, 'SOL-USD', stop_loss, take_profit, open)
-
-        dataframe = ReadDf(args.ADA)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'ADA-USD')
-        make_predictions(dataframe, 'ADA-USD', stop_loss, take_profit, open)
-
-        dataframe = ReadDf(args.LINK)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'LINK-EUR')
-        make_predictions(dataframe, 'LINK-EUR', stop_loss, take_profit, open)
-
-        dataframe = ReadDf(args.AVAX)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'AVAX-EUR')
-        make_predictions(dataframe, 'AVAX-EUR', stop_loss, take_profit, open)
-
-        dataframe = ReadDf(args.DOT)
-        dataframe, stop_loss, take_profit, open = preprocessing_predict(args, dataframe, 'DOT-JPY')
-        make_predictions(dataframe, 'DOT-JPY', stop_loss, take_profit, open)
  
     except Exception as error:
         printError(error)
