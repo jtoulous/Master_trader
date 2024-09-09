@@ -27,6 +27,7 @@ clean:
 	@echo " ===> Done."
 	@echo " ===> resetting models..."
 	@rm -f Trading_Daily/models/architectures/*.pkl
+	@rm -f Trading_Daily/models/architectures/*.joblib
 	@echo " ===> Done.$(RESET)"
 
 .PHONY: all venv install clean
