@@ -49,6 +49,7 @@ def preprocessing_train(args, datafile):
     dataframe  = calc_indicators(dataframe, args) 
     dataframe = calc_labels(dataframe, args)
     dataframe = dataframe.drop(dataframe.index[:10])
+    dataframe = dataframe.drop(dataframe.index[-1])
     dataframe.reset_index(drop=True, inplace=True)
     dataframe.bfill(inplace=True)
 
@@ -100,15 +101,20 @@ def preprocessing_predict(args, dataframe, crypto):
         dataframe  = calc_indicators(dataframe, args)
         take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
         stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
-        open = dataframe.iloc[-1]['OPEN']
+        open_price = dataframe.iloc[-1]['OPEN']
         dataframe = dataframe.tail(1).reset_index(drop=True)
 
     else:
         date = pd.to_datetime(args.date, format='%d/%m/%Y')
+
+        dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args, 'HIGH')
+        dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args, 'CLOSE')
+        dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args, 'LOW')
+        
         dataframe  = calc_indicators(dataframe, args)
         dataframe = dataframe[dataframe['DATETIME'] == date]
         take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
         stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
-        open = dataframe.iloc[-1]['OPEN']
+        open_price = dataframe.iloc[-1]['OPEN']
 
-    return dataframe, stop_loss, take_profit, open
+    return dataframe, stop_loss, take_profit, open_price

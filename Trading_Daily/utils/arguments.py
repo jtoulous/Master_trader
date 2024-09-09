@@ -72,61 +72,37 @@ def GetArg(arg_type):
         return [12, 26, 9]
 
 
-#def GetRP(crypto, arg_type):
-#    if crypto == 'BTC-USD':
-#        return 0.6 if arg_type == 'R' else 1.5
-#    if crypto == 'ETH-USD':
-#        return 0.7 if arg_type == 'R' else 1.8
-#    if crypto == 'SOL-USD':
-#        return 0.7 if arg_type == 'R' else 1.8
-#    if crypto == 'BNB-USD':
-#        return 0.6 if arg_type == 'R' else 1.5
-#    if crypto == 'ADA-USD':
-#        return 0.7 if arg_type == 'R' else 1.8
-#    if crypto == 'LINK-EUR':
-#        return 0.6 if arg_type == 'R' else 1.5
-#    if crypto == 'AVAX-USD':
-#        return 0.6 if arg_type == 'R' else 1.5
-#    if crypto == 'DOGE-USD':
-#        return 0.6 if arg_type == 'R' else 1.5
-#    if crypto == 'DOT-USD':
-#        return 1 if arg_type == 'R' else 2.5
-#    if crypto == 'TRX-EUR':
-#        return 0.6 if arg_type == 'R' else 1.5    
-#    if crypto == 'LTC-USD':
-#        return 0.7 if arg_type == 'R' else 1.8
-
 def GetRP(crypto, arg_type):
     if crypto == 'BTC-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.5
     if crypto == 'ETH-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.5
     if crypto == 'SOL-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 0.9
     if crypto == 'BNB-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'ADA-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 0.9
     if crypto == 'LINK-EUR':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'AVAX-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'DOGE-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 0.9
     if crypto == 'DOT-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'TRX-EUR':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'XRP-USD':
-        return 1.3 if arg_type == 'R' else 3.9  
+        return 0.6 if arg_type == 'R' else 0.9
     if crypto == 'LTC-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.5
     if crypto == 'BCH-USD':
-        return 1.3 if arg_type == 'R' else 3.9  
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'NEAR-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
     if crypto == 'UNI7083-USD':
-        return 1.3 if arg_type == 'R' else 3.9
+        return 0.6 if arg_type == 'R' else 1.2
 
 def UpdateArgs(args, crypto):
     args.risk = GetRP(crypto, 'R')
