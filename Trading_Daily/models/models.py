@@ -2,30 +2,25 @@ import sys
 import joblib
 import pandas as pd
 import warnings
-
 from colorama import Fore, Style
 
 import xgboost as xgb
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
-
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import RandomOverSampler
 
+from utils.arguments import GetFeatures
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 def GradientBoosting(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
-        X, y = GetXnY(df.copy())
+        X, y = df[GetFeatures()], df['LABEL']
         print(' ===> Done')
-
-#        print(f' ===> Splitting data...')
-#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
@@ -52,12 +47,8 @@ def GradientBoosting(df, currency_pair, crossval):
 
 def LogReg(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
-        X, y = GetXnY(df.copy())
+        X, y = df[GetFeatures()], df['LABEL']
         print(' ===> Done')
-        
-#        print(' ===> Splitting data...')
-#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#        print(' ===> Done')
 
         print(' ===> Under sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
@@ -84,12 +75,8 @@ def LogReg(df, currency_pair, crossval):
 
 def MLP(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
-        X, y = GetXnY(df.copy())
+        X, y = df[GetFeatures()], df['LABEL']
         print(' ===> Done')
-        
-#        print(f' ===> Splitting data...')
-#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
@@ -128,12 +115,8 @@ def MLP(df, currency_pair, crossval):
 
 def RFClassifier(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
-        X, y = GetXnY(df.copy())
+        X, y = df[GetFeatures()], df['LABEL']
         print(' ===> Done')
-
-#        print(' ===> Splitting data...')
-#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
@@ -160,17 +143,13 @@ def RFClassifier(df, currency_pair, crossval):
 
 def XGB(df, currency_pair, crossval):
         print(f'{Fore.GREEN} ===> Reading data...')
-        X, y = GetXnY(df.copy())
+        X, y = df[GetFeatures()], df['LABEL']
         print(' ===> Done')
         
         print(' ===> Encoding labels...')
         label_encoder = LabelEncoder()
         y = label_encoder.fit_transform(y) 
         print(' ===> Done')
-
-#        print(' ===> Splitting data...')
-#        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#        print(' ===> Done')
 
         print(' ===> Over sampling...')
         over_sampler = RandomOverSampler(sampling_strategy='auto')
@@ -194,15 +173,3 @@ def XGB(df, currency_pair, crossval):
         joblib.dump(model, f'models/architectures/xgb_{currency_pair}.pkl')
         joblib.dump(label_encoder, f'models/architectures/xgb_label_encoder_{currency_pair}.pkl')
         print(f' ===> Done{Style.RESET_ALL}')
-
-
-def GetXnY(dataframe):
-        features = list(dataframe.columns)
-        features.remove('LABEL')
-        features.remove('DATETIME')
-        features.remove('HIGH')
-        features.remove('LOW')
-        features.remove('CLOSE')
-        features.remove('VOLUME')
-
-        return dataframe[features], dataframe['LABEL']

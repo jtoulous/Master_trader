@@ -19,6 +19,11 @@ if __name__ == '__main__':
             df = data_df.combine_first(df).sort_index()
             df.to_csv(f'{crypto}/{crypto}.csv')
 
+        printLog('\n===> Updating raw files...')
+        subprocess.run(['python', 'split_in_years.py'])
+
+        printLog('===> Updating test files...\n')
+        subprocess.run(['python', 'build_test_files.py'])
 
     except Exception as error:
         printError(error)

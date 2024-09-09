@@ -2,12 +2,14 @@ import os
 import argparse as ap
 import pandas as pd
 import joblib
+import datetime
 
 from sklearn.preprocessing import StandardScaler
 from utils.preprocessing import preprocessing_predict
 from utils.log import printLog, printError
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs, GetFeatures
+from utils.tools import UnanimityPrediction
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -15,7 +17,7 @@ def parsing():
         description='predictive model for trading'
     )
     parser.add_argument('-old', action='store_true', help='old date')
-    parser.add_argument('-date', type=str, default=None, help='prediction date')
+    parser.add_argument('-date', type=str, default=datetime.datetime.today().strftime('%d/%m/%Y'), help='prediction date')
     parser.add_argument('-risk', type=float, default=0, help='percentage of capital for the stop-loss')
     parser.add_argument('-profit', type=float, default=0, help='percentage of capital for the take-profit')
     parser.add_argument('-atr', type=int, default=GetArg('atr'), help='periods used for calculating ATR')
@@ -32,39 +34,15 @@ def parsing():
     args = parser.parse_args()
     return args
 
-def error_check(currency):
-    if not os.path.exists(f'models/architectures/random_forest_model_{currency}.pkl')\
-    or not os.path.exists(f'models/architectures/gradient_boosting_{currency}.pkl')\
-    or not os.path.exists(f'models/architectures/logreg_{currency}.pkl')\
-    or not os.path.exists(f'models/architectures/mlp_{currency}.pkl')\
-    or not os.path.exists(f'models/architectures/xgb_{currency}.pkl')\
-    or not os.path.exists(f'models/architectures/xgb_label_encoder_{currency}.pkl'):
-        raise Exception(f'error: train {currency} models before making {currency} predictions')
-
-
 def print_predictions(currency, stop_loss, take_profit, open_pos, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
-        prediction = 'Win' if predictions_rf[0] == 'W'\
-                        and predictions_gb[0] == 'W'\
-                        and predictions_lr[0] == 'W'\
-                        and predictions_xgb[0] == 'W'\
-                        and predictions_mlp[0] == 'W'\
-                        else 'Lose'
-        printLog(f'\n=========   PREDICTION {currency}  =========')
+        prediction = UnanimityPrediction(predictions_rf[0], predictions_gb[0], predictions_lr[0], predictions_xgb[0], predictions_mlp[0])
+        printLog(f'=========   PREDICTION {currency}  =========')
         printLog(f'======> {prediction}')  
-        printLog(f'  OPEN == {open_pos}')
-        printLog(f'  SL == {stop_loss}')
-        printLog(f'  TP == {take_profit}\n')
+        printLog(f'  OPEN == {open_pos}  |  SL == {stop_loss}  |    TP == {take_profit}\n')
 
 
 def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos):
-    features = list(dataframe.columns)
-    features.remove('DATETIME')
-    features.remove('HIGH')
-    features.remove('LOW')
-    features.remove('CLOSE')
-    features.remove('VOLUME')
-    if 'LABEL' in features:
-        features.remove('LABEL')
+    features = GetFeatures()
 
     random_forest = joblib.load(f'models/architectures/random_forest_model_{currency_pair}.pkl')
     gradient_boosting = joblib.load(f'models/architectures/gradient_boosting_{currency_pair}.pkl')
@@ -76,11 +54,8 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos)
     
     features_df = dataframe[features]
     scaled_features = scaler.transform(features_df)
-    scaled_features_df =  pd.DataFrame(scaled_features, columns=features)
-#    dataframe[features] = scaled_features_df
-#    X = dataframe[features]
-
-    X = scaled_features_df
+    X = pd.DataFrame(scaled_features, columns=features)
+   
     predictions_rf = random_forest.predict(X)
     predictions_gb = gradient_boosting.predict(X)
     predictions_lr = logreg.predict(X)
@@ -90,7 +65,7 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos)
     print_predictions(currency_pair, stop_loss, take_profit, open_pos, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb)
 
 
-if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
+if __name__ == '__main__':
     try:    
         args = parsing()
 
@@ -99,7 +74,6 @@ if __name__ == '__main__':  ####FAIRE UN AUTO UPDATE AVANT DE COMMENCER
             dataframe = ReadDf(GetCryptoFile(crypto))
             dataframe, stop_loss, take_profit, open_pos = preprocessing_predict(args, dataframe, crypto)
             make_predictions(dataframe, crypto, stop_loss, take_profit, open_pos)
-
  
     except Exception as error:
         printError(error)

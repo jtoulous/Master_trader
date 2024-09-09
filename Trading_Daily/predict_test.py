@@ -6,7 +6,8 @@ import joblib
 from utils.preprocessing import preprocessing_test
 from utils.log import printLog, printError, printHeader
 from utils.dataframe import ReadDf
-from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
+from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs, GetFeatures
+from utils.tools import UnanimityPrediction, SafeDivide
 
 def parsing():
     parser = ap.ArgumentParser(
@@ -30,32 +31,6 @@ def parsing():
     args = parser.parse_args()
     return args
 
-def error_check(currency_pair):
-    if not os.path.exists(f'models/architectures/random_forest_model_{currency_pair}.pkl')\
-    or not os.path.exists(f'models/architectures/gradient_boosting_{currency_pair}.pkl')\
-    or not os.path.exists(f'models/architectures/logreg_{currency_pair}.pkl')\
-    or not os.path.exists(f'models/architectures/mlp_{currency_pair}.pkl')\
-    or not os.path.exists(f'models/architectures/xgb_{currency_pair}.pkl')\
-    or not os.path.exists(f'models/architectures/xgb_label_encoder_{currency_pair}.pkl'):
-        raise Exception(f'error: train {currency_pair} models before making {currency_pair} predictions')
-
-def Majority_Prediction(*predictions):
-    win_count = 0
-    lose_count = 0
-    for pred in predictions:
-        if pred == 'W':
-            win_count += 1
-        elif pred == 'L':
-            lose_count += 1
-    if win_count > lose_count:
-        return 'W'
-    return 'L'
-    
-def Unanimity_Prediction(*predictions):
-    for pred in predictions:
-        if pred != 'W':
-            return 'L'
-    return 'W'
 
 def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
     total_good_pred = 0
@@ -68,56 +43,37 @@ def predictions_stats(y, predictions_rf, predictions_gb, predictions_lr, predict
     total_false_lose = 0
 
     for i in range(len(y)):
-        # prediction = Majority_Prediction(predictions_rf[i], predictions_gb[i], predictions_lr[i], predictions_mlp[i], predictions_xgb[i])
-        prediction = Unanimity_Prediction(predictions_rf[i], predictions_gb[i], predictions_lr[i], predictions_mlp[i], predictions_xgb[i])
-        if prediction == 'W':
+        prediction = UnanimityPrediction(predictions_rf[i], predictions_gb[i], predictions_lr[i], predictions_mlp[i], predictions_xgb[i])
+        if prediction == 'Win':
             total_win_pred += 1
         else:
             total_lose_pred += 1
 
         if prediction == y[i]:
             total_good_pred += 1
-            if prediction == 'W':
+            if prediction == 'Win':
                 total_true_win += 1
             else:
                 total_true_lose += 1
-            # printLog(f'{y[i]} ===> {prediction}')
-
         else:
-            if prediction == 'W':
+            if prediction == 'Win':
                 total_false_win += 1
             else:
                 total_false_lose += 1
-            # printError(f'{y[i]} ===> {prediction}')
-
-    def safe_divide(numerator, denominator):
-        return (numerator / denominator) * 100 if denominator != 0 else 0
-
-    final_stats = (
-        f'\nTRUE WIN ACCURACY ===> {total_true_win} / {total_false_win}'
-    )
-
+    win_percentage = round((total_true_win / (total_true_win + total_false_win)) * 100, 2)
 #    final_stats = (
-#        f'\nTRUE WIN ACCURACY ===> {safe_divide(total_true_win, total_win_pred)}%  ({total_true_win})'
-#        f'\nFALSE WIN ACCURACY ===> {safe_divide(total_false_win, total_win_pred)}%  ({total_false_win})'
-#        f'\nTRUE LOSS ACCURACY ===> {safe_divide(total_true_lose, total_lose_pred)}%  ({total_true_lose})'
-#        f'\nFALSE LOSS ACCURACY ===> {safe_divide(total_false_lose, total_lose_pred)}%  ({total_false_lose})\n'
-#        f'TOTAL ACCURACY ===> {safe_divide(total_good_pred, len(y))}% correct'
+#        f'\nTRUE WIN ACCURACY ===> {SafeDivide(total_true_win, total_win_pred)}%  ({total_true_win})'
+#        f'\nFALSE WIN ACCURACY ===> {SafeDivide(total_false_win, total_win_pred)}%  ({total_false_win})'
+#        f'\nTRUE LOSS ACCURACY ===> {SafeDivide(total_true_lose, total_lose_pred)}%  ({total_true_lose})'
+#        f'\nFALSE LOSS ACCURACY ===> {SafeDivide(total_false_lose, total_lose_pred)}%  ({total_false_lose})\n'
+#        f'TOTAL ACCURACY ===> {SafeDivide(total_good_pred, len(y))}% correct'
 #    )
-    return final_stats
+    return f'TRUE WIN ACCURACY ===> {total_true_win} / {total_false_win} ({win_percentage}%)'
 
 
 def make_test_predictions(dataframe, currency_pair):
     printLog('Reading data...')
-    features = list(dataframe.columns)
-    features.remove('LABEL')
-    features.remove('DATETIME')
-    features.remove('HIGH')
-    features.remove('LOW')
-    features.remove('CLOSE')
-    features.remove('VOLUME')
-    X = dataframe[features]
-    y = dataframe['LABEL']
+    X, y = dataframe[GetFeatures()], dataframe['LABEL']
     printLog('Done')
 
     printLog('Loading models...')

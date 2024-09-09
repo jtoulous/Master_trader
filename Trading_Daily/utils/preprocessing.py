@@ -5,7 +5,7 @@ from .log import printLog
 from .indicators import calc_indicators
 from .dataframe import ReadDf
 from .estimate import Estimate
-from .arguments import GetOpen, GetDate
+from .arguments import GetOpen, GetDate, GetFeatures
 
 def calc_labels(dataframe, args):
     printLog('Defining labels...')
@@ -28,17 +28,17 @@ def calc_labels(dataframe, args):
                 low = dataframe.iloc[idx, dataframe.columns.get_loc('LOW')]
 
                 if low <= stop_loss:
-                    dataframe.at[r, "LABEL"] = 'L'
+                    dataframe.at[r, "LABEL"] = 'Lose'
                     label_assigned = True
                     break  
 
                 if high >= take_profit:
-                    dataframe.at[r, "LABEL"] = 'W'
+                    dataframe.at[r, "LABEL"] = 'Win'
                     label_assigned = True
                     break  
 
         if not label_assigned:
-            dataframe.at[r, "LABEL"] = 'L'
+            dataframe.at[r, "LABEL"] = 'Lose'
     dataframe.insert(1, 'LABEL', dataframe.pop('LABEL'))
     printLog('Done')
     return dataframe
@@ -54,13 +54,7 @@ def preprocessing_train(args, datafile):
     dataframe.bfill(inplace=True)
 
     scaler = StandardScaler()
-    features = list(dataframe.columns)
-    features.remove('LABEL')
-    features.remove('DATETIME')
-    features.remove('HIGH')
-    features.remove('LOW')
-    features.remove('CLOSE')
-    features.remove('VOLUME')
+    features = GetFeatures()
     features_df = dataframe[features]
     scaled_features = scaler.fit_transform(features_df)
     scaled_features_df = pd.DataFrame(scaled_features, columns=features)
@@ -73,13 +67,15 @@ def preprocessing_test(args, dataframe):
     dataframe  = calc_indicators(dataframe, args) 
     dataframe = calc_labels(dataframe, args)
     dataframe = dataframe.drop(dataframe.index[:10])
+    dataframe = dataframe.drop(dataframe.index[-1])
     dataframe.reset_index(drop=True, inplace=True)
     dataframe.bfill(inplace=True)
 
     scaler = StandardScaler()
-    features = list(dataframe.columns)
-    features.remove('LABEL')
-    features.remove('DATETIME')
+#    features = list(dataframe.columns)
+#    features.remove('LABEL')
+#    features.remove('DATETIME')
+    features = GetFeatures()
     features_df = dataframe[features]
     scaled_features = scaler.fit_transform(features_df)
     scaled_features_df = pd.DataFrame(scaled_features, columns=features)
@@ -88,9 +84,10 @@ def preprocessing_test(args, dataframe):
 
 
 def preprocessing_predict(args, dataframe, crypto):
+    date = pd.to_datetime(args.date, format='%d/%m/%Y')
     if args.old is False:
         new_row = pd.DataFrame({
-            'DATETIME': GetDate(args, dataframe),
+            'DATETIME': date,
             'OPEN': GetOpen(args, dataframe, crypto),
             'HIGH': [Estimate(dataframe, args, 'HIGH')],
             'LOW': [Estimate(dataframe, args, 'LOW')],
@@ -105,8 +102,6 @@ def preprocessing_predict(args, dataframe, crypto):
         dataframe = dataframe.tail(1).reset_index(drop=True)
 
     else:
-        date = pd.to_datetime(args.date, format='%d/%m/%Y')
-
         dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args, 'HIGH')
         dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args, 'CLOSE')
         dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args, 'LOW')

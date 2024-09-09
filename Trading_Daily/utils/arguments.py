@@ -104,6 +104,43 @@ def GetRP(crypto, arg_type):
     if crypto == 'UNI7083-USD':
         return 0.6 if arg_type == 'R' else 1.2
 
+
+def GetFeatures():
+    features = [
+        'OPEN',
+        'DAY',
+        'ATR',
+        'EMA',
+        'RSI',
+        'K(sto)',
+        'D(sto)',
+        'SMA',
+        'WMA',
+        'DM+',
+        'DM-',
+        'ADX',
+        'U-BAND',
+        'L-BAND',
+        'MACD_LINE',
+        'MACD_SIGNAL',
+        'MACD_HISTO',
+        'Hilbert_Transform',
+        'CCI',
+        'PPO_LINE',
+        'PPO_SIGNAL',
+        'ROC',
+        'ATR_Lagged',
+        'EMA_Lagged',
+        'RSI_Lagged',
+        'Momentum',
+        'MACD_Difference',
+        'Bollinger_Width',
+        'EMA_SMA_Ratio',
+#        'VOLUME'
+    ]
+    return features
+
+
 def UpdateArgs(args, crypto):
     args.risk = GetRP(crypto, 'R')
     args.profit = GetRP(crypto, 'P')
