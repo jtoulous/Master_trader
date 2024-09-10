@@ -49,7 +49,7 @@ def preprocessing_train(args, datafile):
     dataframe  = calc_indicators(dataframe, args) 
     dataframe = calc_labels(dataframe, args)
     dataframe = dataframe.drop(dataframe.index[:10])
-    dataframe = dataframe.drop(dataframe.index[-1])
+    dataframe = dataframe.drop(dataframe.index[-10:])
     dataframe.reset_index(drop=True, inplace=True)
     dataframe.bfill(inplace=True)
 
@@ -72,9 +72,6 @@ def preprocessing_test(args, dataframe):
     dataframe.bfill(inplace=True)
 
     scaler = StandardScaler()
-#    features = list(dataframe.columns)
-#    features.remove('LABEL')
-#    features.remove('DATETIME')
     features = GetFeatures()
     features_df = dataframe[features]
     scaled_features = scaler.fit_transform(features_df)

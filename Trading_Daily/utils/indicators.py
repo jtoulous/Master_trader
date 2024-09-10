@@ -7,6 +7,7 @@ from .log import printLog
 def date_to_features(dataframe):
 #    printLog('Converting dates...')    
     dataframe['DAY'] = dataframe['DATETIME'].dt.dayofweek + 1
+    dataframe['YEAR'] = dataframe['DATETIME'].dt.year
 #    printLog('Done')
     return dataframe
 

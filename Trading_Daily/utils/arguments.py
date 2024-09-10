@@ -109,6 +109,7 @@ def GetFeatures():
     features = [
         'OPEN',
         'DAY',
+        'YEAR',
         'ATR',
         'EMA',
         'RSI',
@@ -135,8 +136,7 @@ def GetFeatures():
         'Momentum',
         'MACD_Difference',
         'Bollinger_Width',
-        'EMA_SMA_Ratio',
-#        'VOLUME'
+        'EMA_SMA_Ratio'
     ]
     return features
 

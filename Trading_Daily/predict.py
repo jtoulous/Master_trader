@@ -36,9 +36,14 @@ def parsing():
 
 def print_predictions(currency, stop_loss, take_profit, open_pos, predictions_rf, predictions_gb, predictions_lr, predictions_mlp, predictions_xgb):
         prediction = UnanimityPrediction(predictions_rf[0], predictions_gb[0], predictions_lr[0], predictions_xgb[0], predictions_mlp[0])
-        printLog(f'=========   PREDICTION {currency}  =========')
-        printLog(f'======> {prediction}')  
-        printLog(f'  OPEN == {open_pos}  |  SL == {stop_loss}  |    TP == {take_profit}\n')
+        if prediction == 'Win':   
+            printLog(f'=========   PREDICTION {currency}  =========')
+            printLog(f'======> {prediction}')  
+            printLog(f'  OPEN == {open_pos}  |  SL == {stop_loss}  |    TP == {take_profit}\n')
+        else:
+            printError(f'=========   PREDICTION {currency}  =========')
+            printError(f'======> {prediction}')  
+            printError(f'  OPEN == {open_pos}  |  SL == {stop_loss}  |    TP == {take_profit}\n')
 
 
 def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos):
@@ -68,7 +73,7 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos)
 if __name__ == '__main__':
     try:    
         args = parsing()
-
+        printLog(f'=======>  {args.date}')
         for crypto in ActiveCryptos():
             args = UpdateArgs(args, crypto)
             dataframe = ReadDf(GetCryptoFile(crypto))
