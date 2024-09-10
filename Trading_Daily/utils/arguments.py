@@ -109,7 +109,7 @@ def GetFeatures():
     features = [
         'OPEN',
         'DAY',
-        'YEAR',
+#        'YEAR',
         'ATR',
         'EMA',
         'RSI',
@@ -138,6 +138,7 @@ def GetFeatures():
         'Bollinger_Width',
         'EMA_SMA_Ratio'
     ]
+# AJOUTEZ L ANNEE COMME FEATURE SEULEMENT SUR LES CRYPTO RECENTE    
     return features
 
 

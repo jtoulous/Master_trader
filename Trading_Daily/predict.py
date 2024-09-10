@@ -73,7 +73,7 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos)
 if __name__ == '__main__':
     try:    
         args = parsing()
-        printLog(f'=======>  {args.date}')
+        printLog(f'=======>  {args.date}\n\n')
         for crypto in ActiveCryptos():
             args = UpdateArgs(args, crypto)
             dataframe = ReadDf(GetCryptoFile(crypto))
