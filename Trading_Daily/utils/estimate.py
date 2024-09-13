@@ -42,6 +42,7 @@ def Estimate(dataframe, args, pred_type):
 
     features.remove('LABEL')
     X_predict = df[features][df['DATETIME'] == date]
+    df = df[df['DATETIME'] != date]
     # X_predict = df.tail(1)[features].copy()
     X_train = df.iloc[:-1][features]
     y_train = df.iloc[:-1]['LABEL']
