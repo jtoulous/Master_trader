@@ -39,11 +39,11 @@ def GetDate(args, dataframe):
 
 def GetCryptoFile(crypto, file_type='default'):
     if file_type == 'default':
-        return f'data/{crypto}/{crypto}.csv'
+        return f'data/CRYPTOS/{crypto}/{crypto}.csv'
     if file_type == 'test train':
-        return f'data/{crypto}/test_train.csv'
+        return f'data/CRYPTOS/{crypto}/test_train.csv'
     if file_type == 'test predict':
-        return f'data/{crypto}/test_predict.csv'
+        return f'data/CRYPTOS/{crypto}/test_predict.csv'
 
 def GetArg(arg_type):
     if arg_type == 'lifespan':

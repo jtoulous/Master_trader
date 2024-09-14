@@ -8,20 +8,20 @@ if __name__ == '__main__':
             command_1 = [
                 'python',
                 'combine.py',
-                f'{crypto}/raw/{crypto}_2020.csv',
-                f'{crypto}/raw/{crypto}_2021.csv',
-                f'{crypto}/raw/{crypto}_2022.csv',
-                f'{crypto}/raw/{crypto}_2023.csv',
+                f'CRYPTOS/{crypto}/raw/{crypto}_2020.csv',
+                f'CRYPTOS/{crypto}/raw/{crypto}_2021.csv',
+                f'CRYPTOS/{crypto}/raw/{crypto}_2022.csv',
+                f'CRYPTOS/{crypto}/raw/{crypto}_2023.csv',
                 '-dst',
-                f'{crypto}/test_train.csv',
+                f'CRYPTOS/{crypto}/test_train.csv',
             ]
 
             command_2 = [
                 'python',
                 'combine.py',
-                f'{crypto}/raw/{crypto}_2024.csv',
+                f'CRYPTOS/{crypto}/raw/{crypto}_2024.csv',
                 '-dst',
-                f'{crypto}/test_predict.csv'
+                f'CRYPTOS/{crypto}/test_predict.csv'
             ]
             subprocess.run(command_1)
             subprocess.run(command_2)

@@ -86,9 +86,9 @@ def preprocessing_predict(args, dataframe, crypto):
         new_row = pd.DataFrame({
             'DATETIME': date,
             'OPEN': GetOpen(args, dataframe, crypto),
-            'HIGH': [Estimate(dataframe, args, 'HIGH')],
-            'LOW': [Estimate(dataframe, args, 'LOW')],
-            'CLOSE': [Estimate(dataframe, args, 'CLOSE')],
+            'HIGH': [Estimate(dataframe, args.date, 'HIGH')],
+            'LOW': [Estimate(dataframe, args.date, 'LOW')],
+            'CLOSE': [Estimate(dataframe, args.date, 'CLOSE')],
             'VOLUME': [None],
         })
         dataframe = pd.concat([dataframe, new_row], ignore_index=True)
@@ -99,9 +99,9 @@ def preprocessing_predict(args, dataframe, crypto):
         dataframe = dataframe.tail(1).reset_index(drop=True)
 
     else:
-        dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args, 'HIGH')
-        dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args, 'CLOSE')
-        dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args, 'LOW')
+        dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args.date, 'HIGH')
+        dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args.date, 'CLOSE')
+        dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args.date, 'LOW')
         
         dataframe  = calc_indicators(dataframe, args)
         dataframe = dataframe[dataframe['DATETIME'] == date]

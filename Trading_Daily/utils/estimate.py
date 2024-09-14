@@ -6,6 +6,7 @@ from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 from .indicators import ATR, SMA, EMA, RSI, MACD, DMI
 from .indicators import Bollinger_bands, STO, ROC, date_to_features
+from .arguments import GetArg
 
 def Cross_Val(model, X, y, cv, pred_type):
     print(f' ===> {pred_type} Cross validation...')
@@ -15,19 +16,19 @@ def Cross_Val(model, X, y, cv, pred_type):
     print(' ===> Done')
 
 
-def Estimate(dataframe, args, pred_type):
-    date = pd.to_datetime(args.date, format='%d/%m/%Y')
+def Estimate(dataframe, date, pred_type):
+    date = pd.to_datetime(date, format='%d/%m/%Y')
     df = dataframe.copy()
     df = date_to_features(df)
-    df = ATR(df, args.atr)
-    df = SMA(df, args.sma)
-    df = EMA(df, args.ema)
-    df = RSI(df, args.rsi)
-    df = Bollinger_bands(df, args.blg)
-    df = MACD(df, args.macd)
-    df = STO(df, args.sto)
+    df = ATR(df, GetArg('atr'))
+    df = SMA(df, GetArg('sma'))
+    df = EMA(df, GetArg('ema'))
+    df = RSI(df, GetArg('rsi'))
+    df = Bollinger_bands(df, GetArg('blg'))
+    df = MACD(df, GetArg('macd'))
+    df = STO(df, GetArg('sto'))
     df = ROC(df)
-    df = DMI(df, args.dmi)
+    df = DMI(df, GetArg('dmi'))
     df['GROWTH'] = (df['CLOSE'] - df['OPEN']) / df['OPEN'] * 100
     df['LABEL'] = df[pred_type].shift(-1)
    
@@ -43,7 +44,6 @@ def Estimate(dataframe, args, pred_type):
     features.remove('LABEL')
     X_predict = df[features][df['DATETIME'] == date]
     df = df[df['DATETIME'] != date]
-    # X_predict = df.tail(1)[features].copy()
     X_train = df.iloc[:-1][features]
     y_train = df.iloc[:-1]['LABEL']
 
@@ -70,17 +70,6 @@ def Estimate(dataframe, args, pred_type):
     MLP.fit(X_train, y_train)
     GBC.fit(X_train, y_train)
     RFC.fit(X_train, y_train)
-
-    mlp_pred = MLP.predict(X_train)
-    gbc_pred = GBC.predict(X_train)
-    rfc_pred = RFC.predict(X_train)
-
-#    for i, (mlp_p, gbc_p, rfc_p, y) in enumerate(zip(mlp_pred, gbc_pred, rfc_pred, y_train)):
-#        print(f"True Value: {y}")
-#        print(f"  ==> Average Prediction: {(mlp_p + gbc_p + rfc_p) / 3}")
-#        print(f"  ==> MLP Prediction: {mlp_p}")
-#        print(f"  ==> GBC Prediction: {gbc_p}")
-#        print(f"  ==> RFC Prediction: {rfc_p}\n")
 
     mlp_pred = MLP.predict(X_predict)
     gbc_pred = GBC.predict(X_predict)

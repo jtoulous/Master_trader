@@ -10,7 +10,7 @@ if __name__ == '__main__':
     try:
         cryptos = ActiveCryptos()
         for crypto in cryptos:
-            df = ReadDf(f'{crypto}/{crypto}.csv')
+            df = ReadDf(f'CRYPTOS/{crypto}/{crypto}.csv')
             data_df = yf.download(crypto, start=df['DATETIME'].iloc[-5].date(), interval='1d')
             data_df = CleanDf(data_df)
 
