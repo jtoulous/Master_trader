@@ -83,6 +83,7 @@ def preprocessing_test(args, dataframe):
 def preprocessing_predict(args, dataframe, crypto):
     date = pd.to_datetime(args.date, format='%d/%m/%Y')
     if args.old is False:
+        dataframe = dataframe[dataframe['DATETIME'] != date].reset_index(drop=True)
         new_row = pd.DataFrame({
             'DATETIME': date,
             'OPEN': GetOpen(args, dataframe, crypto),

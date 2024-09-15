@@ -17,7 +17,7 @@ if __name__ == '__main__':
             df.set_index('DATETIME', inplace=True)
             data_df.set_index('DATETIME', inplace=True)
             df = data_df.combine_first(df).sort_index()
-            df.to_csv(f'{crypto}/{crypto}.csv')
+            df.to_csv(f'CRYPTOS/{crypto}/{crypto}.csv')
 
         printLog('\n===> Updating raw files...')
         subprocess.run(['python', 'split_in_years.py'])

@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -17,7 +18,8 @@ def Cross_Val(model, X, y, cv, pred_type):
 
 
 def Estimate(dataframe, date, pred_type):
-    date = pd.to_datetime(date, format='%d/%m/%Y')
+    today_date = pd.to_datetime(datetime.today().strftime('%d/%m/%Y'), format='%d/%m/%Y')
+    prev_date = pd.to_datetime(date, format='%d/%m/%Y') - pd.Timedelta(days=1)
     df = dataframe.copy()
     df = date_to_features(df)
     df = ATR(df, GetArg('atr'))
@@ -30,8 +32,11 @@ def Estimate(dataframe, date, pred_type):
     df = ROC(df)
     df = DMI(df, GetArg('dmi'))
     df['GROWTH'] = (df['CLOSE'] - df['OPEN']) / df['OPEN'] * 100
+    rectify_df = df.copy()
+
     df['LABEL'] = df[pred_type].shift(-1)
-   
+    df = df[(df['DATETIME'] != date) & (df['DATETIME'] != today_date)]
+    
     features = list(df.columns)
     features.remove('DATETIME')
     features_df = df[features]
@@ -42,10 +47,10 @@ def Estimate(dataframe, date, pred_type):
     label_scale = scaler.scale_[features.index('LABEL')]
 
     features.remove('LABEL')
-    X_predict = df[features][df['DATETIME'] == date]
-    df = df[df['DATETIME'] != date]
-    X_train = df.iloc[:-1][features]
-    y_train = df.iloc[:-1]['LABEL']
+    X_predict = df[features][df['DATETIME'] == prev_date]
+    df = df[df['DATETIME'] != prev_date]
+    X_train = df.iloc[:-2][features]
+    y_train = df.iloc[:-2]['LABEL']
 
     RFC = RandomForestRegressor(n_estimators=100, random_state=42)
     GBC = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
@@ -79,4 +84,38 @@ def Estimate(dataframe, date, pred_type):
     gbc_pred_denorm = gbc_pred * label_scale + label_mean
     rfc_pred_denorm = rfc_pred * label_scale + label_mean
 
-    return (mlp_pred_denorm[0] + gbc_pred_denorm[0] + rfc_pred_denorm[0]) / 3
+    prediction = (mlp_pred_denorm[0] + gbc_pred_denorm[0] + rfc_pred_denorm[0]) / 3
+#    prediction = RectifyEstimation(pred_type, rectify_df, prev_date, MLP, GBC, RFC, label_mean, label_scale)
+
+    return prediction
+
+
+#def RectifyEstimation(pred_type, dataframe, date, MLP, GBC, RFC, label_mean, label_scale):
+#    df_1 = dataframe[:-2].copy()
+#    df_2 = dataframe[:-2].copy()
+#
+#    features = list(df_1.columns)
+#    features.remove('DATETIME')
+#    features_df = df_1[features]
+#    scaler = StandardScaler()
+#    tmp_df = pd.DataFrame(scaler.fit_transform(features_df), columns=features)
+#    df_1[features] = tmp_df
+#
+#    for idx, row in df_1.iterrows():
+#        row_date = row['DATETIME']
+#        df_predict = row[features].to_frame().T
+#        mlp_pred = MLP.predict(df_predict)[0] * label_scale + label_mean
+#        rfc_pred = RFC.predict(df_predict)[0] * label_scale + label_mean
+#        gbc_pred = GBC.predict(df_predict)[0] * label_scale + label_mean
+#
+#        prediction = (mlp_pred + gbc_pred + rfc_pred) / 3
+#        actual_value = float(df_2[df_2['DATETIME'] == row_date + pd.Timedelta(days=1)][pred_type])
+#        df_2.loc[df2['DATETIME'] == row_date, 'LABEL'] = prediction - actual_value
+#        breakpoint()
+#
+#
+#
+#    X_predict = df[df['DATETIME'] == date]
+#    X_train = df[df['DATETIME'] != date]
+#
+#    breakpoint()

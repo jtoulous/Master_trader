@@ -3,11 +3,12 @@ import argparse as ap
 import joblib
 
 from models.models import GradientBoosting, LogReg, MLP, RFClassifier, XGB
+#from utils.estimate import Estimator
 from utils.preprocessing import preprocessing_train
 from utils.log import printLog, printError, printHeader
 from utils.arguments import GetArg, ActiveCryptos, GetCryptoFile, UpdateArgs
 
-def parsing():
+def Parsing():
     parser = ap.ArgumentParser(
         prog='trading algo',
         description='predictive model for trading'
@@ -32,7 +33,7 @@ def parsing():
     return parser.parse_args()
 
 
-def trainModels(dataframe, currency_pair, scaler, crossval):
+def TrainModels(dataframe, currency_pair, scaler, crossval):
     printLog('\nTRAINING GRADIENT BOOSTING MODEL...')
     GradientBoosting(dataframe, currency_pair, crossval)
     printLog('GRADIENT BOOSTING MODEL DONE\n')
@@ -56,16 +57,22 @@ def trainModels(dataframe, currency_pair, scaler, crossval):
     joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}.joblib')
 
 
+#def     TrainEstimator(dataframe, crypto):
+#    breakpoint()
+#    Estimator()
+
+
 if __name__ == '__main__':
     try:
-        args = parsing()
+        args = Parsing()
 
         for crypto in ActiveCryptos():
             args = UpdateArgs(args, crypto)
             printHeader(f'{crypto}')
             file = GetCryptoFile(crypto) if args.test is False else GetCryptoFile(crypto, file_type='test train')
             dataframe, scaler = preprocessing_train(args, file)
-            trainModels(dataframe, crypto, scaler, args.crossval)
+            TrainModels(dataframe, crypto, scaler, args.crossval)
+#            TrainEstimator(dataframe, crypto)
 
 
     except Exception as error:
