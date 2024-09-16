@@ -16,6 +16,7 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
+    parser.add_argument('-crypto', type=str, default=None, help='crypto to predict')
     parser.add_argument('-old', action='store_true', help='old date')
     parser.add_argument('-date', type=str, default=datetime.datetime.today().strftime('%d/%m/%Y'), help='prediction date')
     parser.add_argument('-risk', type=float, default=0, help='percentage of capital for the stop-loss')
@@ -73,8 +74,9 @@ def make_predictions(dataframe, currency_pair, stop_loss, take_profit, open_pos)
 if __name__ == '__main__':
     try:    
         args = parsing()
+        crypto_list = [args.crypto] if args.crypto is not None else ActiveCryptos()
         printLog(f'=======>  {args.date}\n\n')
-        for crypto in ActiveCryptos():
+        for crypto in crypto_list:
             args = UpdateArgs(args, crypto)
             dataframe = ReadDf(GetCryptoFile(crypto))
             dataframe, stop_loss, take_profit, open_pos = preprocessing_predict(args, dataframe, crypto)

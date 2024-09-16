@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
 
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
@@ -85,37 +85,77 @@ def Estimate(dataframe, date, pred_type):
     rfc_pred_denorm = rfc_pred * label_scale + label_mean
 
     prediction = (mlp_pred_denorm[0] + gbc_pred_denorm[0] + rfc_pred_denorm[0]) / 3
-#    prediction = RectifyEstimation(pred_type, rectify_df, prev_date, MLP, GBC, RFC, label_mean, label_scale)
+#    print(f' {pred_type} uncorrected = {prediction}')
+#    prediction = RectifyEstimation(pred_type, rectify_df, prev_date, MLP, GBC, RFC, label_mean, label_scale, prediction)
 
     return prediction
 
 
-#def RectifyEstimation(pred_type, dataframe, date, MLP, GBC, RFC, label_mean, label_scale):
-#    df_1 = dataframe[:-2].copy()
-#    df_2 = dataframe[:-2].copy()
-#
-#    features = list(df_1.columns)
-#    features.remove('DATETIME')
-#    features_df = df_1[features]
-#    scaler = StandardScaler()
-#    tmp_df = pd.DataFrame(scaler.fit_transform(features_df), columns=features)
-#    df_1[features] = tmp_df
-#
-#    for idx, row in df_1.iterrows():
-#        row_date = row['DATETIME']
-#        df_predict = row[features].to_frame().T
-#        mlp_pred = MLP.predict(df_predict)[0] * label_scale + label_mean
-#        rfc_pred = RFC.predict(df_predict)[0] * label_scale + label_mean
-#        gbc_pred = GBC.predict(df_predict)[0] * label_scale + label_mean
-#
-#        prediction = (mlp_pred + gbc_pred + rfc_pred) / 3
-#        actual_value = float(df_2[df_2['DATETIME'] == row_date + pd.Timedelta(days=1)][pred_type])
-#        df_2.loc[df2['DATETIME'] == row_date, 'LABEL'] = prediction - actual_value
-#        breakpoint()
-#
-#
-#
-#    X_predict = df[df['DATETIME'] == date]
-#    X_train = df[df['DATETIME'] != date]
-#
-#    breakpoint()
+def RectifyEstimation(pred_type, dataframe, date, MLP, GBC, RFC, label_mean, label_scale, prediction):
+    df_1 = dataframe[:-2].copy()
+    df_2 = dataframe[:-2].copy()
+
+    breakpoint()
+    features = list(df_1.columns)
+    features.remove('DATETIME')
+    features_df = df_1[features]
+    scaler_df1 = StandardScaler()
+    tmp_df = pd.DataFrame(scaler_df1.fit_transform(features_df), columns=features)
+    df_1[features] = tmp_df
+
+    for idx, row in df_1.iterrows():
+        if idx == len(df_1) - 1:
+            break
+        row_date = row['DATETIME']
+        df_predict = row[features].to_frame().T
+        mlp_pred = MLP.predict(df_predict)[0] * label_scale + label_mean
+        rfc_pred = RFC.predict(df_predict)[0] * label_scale + label_mean
+        gbc_pred = GBC.predict(df_predict)[0] * label_scale + label_mean
+
+        pred = (mlp_pred + gbc_pred + rfc_pred) / 3
+        actual_value = float(df_2[df_2['DATETIME'] == row_date + pd.Timedelta(days=1)][pred_type].iloc[0])
+        df_2.loc[df_2['DATETIME'] == row_date, 'LABEL'] = pred - actual_value
+    
+    features = list(df_2.columns)
+    features.remove('DATETIME')
+    features_df = df_2[features]
+    scaler_df2 = RobustScaler()
+    tmp_df = pd.DataFrame(scaler_df2.fit_transform(features_df), columns=features)
+    df_2[features] = tmp_df
+    label_mean_df2 = scaler_df2.center_[features.index('LABEL')]
+    label_scale_df2 = scaler_df2.scale_[features.index('LABEL')]
+    features.remove('LABEL')
+
+    X_predict = df_2[df_2['DATETIME'] == date][features]
+    X_train = df_2[df_2['DATETIME'] != date][features][:-1]
+    y_train = df_2[df_2['DATETIME'] != date]['LABEL'][:-1]
+
+    RFC = RandomForestRegressor(n_estimators=100, random_state=42)
+    GBC = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+    MLP = MLPRegressor(
+        hidden_layer_sizes=(100,),
+        activation='relu',
+        solver='adam',
+        shuffle=True,
+        random_state=42,
+        verbose=False
+    )
+
+#    Cross_Val(MLP, X_train, y_train, 5, 'MLP')
+#    Cross_Val(RFC, X_train, y_train, 5, 'RFC')
+#    Cross_Val(GBC, X_train, y_train, 5, 'GBC')
+
+    MLP.fit(X_train, y_train)
+    GBC.fit(X_train, y_train)
+    RFC.fit(X_train, y_train)
+
+    mlp_pred = MLP.predict(X_predict)
+    gbc_pred = GBC.predict(X_predict)
+    rfc_pred = RFC.predict(X_predict)
+
+    mlp_pred_denorm = mlp_pred * label_scale_df2 + label_mean_df2
+    gbc_pred_denorm = gbc_pred * label_scale_df2 + label_mean_df2
+    rfc_pred_denorm = rfc_pred * label_scale_df2 + label_mean_df2
+
+    correction = (mlp_pred_denorm[0] + gbc_pred_denorm[0] + rfc_pred_denorm[0]) / 3
+    return prediction + correction
