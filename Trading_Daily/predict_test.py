@@ -106,7 +106,8 @@ if __name__ == '__main__':
             args = UpdateArgs(args, crypto)
             printHeader(crypto)
             dataframe = ReadDf(GetCryptoFile(crypto, file_type='test predict'))
-            dataframe = preprocessing_test(args, dataframe)
+            full_dataframe = ReadDf(GetCryptoFile(crypto))
+            dataframe = preprocessing_test(args, dataframe, full_dataframe)
             pred_stats[crypto] = make_test_predictions(dataframe, crypto)
 
         for crypto in pred_stats.keys():

@@ -61,15 +61,28 @@ def preprocessing_train(args, datafile):
     dataframe[features] = scaled_features_df
     return dataframe, scaler
 
-def preprocessing_test(args, dataframe):
+def preprocessing_test(args, dataframe, full_dataframe):
     dataframe['DATETIME'] = pd.to_datetime(dataframe['DATETIME'])
     dataframe = dataframe.sort_values(by='DATETIME')
     dataframe  = calc_indicators(dataframe, args) 
     dataframe = calc_labels(dataframe, args)
+
     dataframe = dataframe.drop(dataframe.index[:10])
-    dataframe = dataframe.drop(dataframe.index[-1])
+    dataframe = dataframe.drop(dataframe.index[-5:])
     dataframe.reset_index(drop=True, inplace=True)
-    dataframe.bfill(inplace=True)
+
+#    for idx, row in dataframe.iterrows():
+#        printLog(idx)
+#        if idx == 0 or idx >= len(dataframe) - 250:
+#            continue
+#        dataframe.loc[dataframe['DATETIME'] == row['DATETIME'], 'HIGH'] = Estimate(full_dataframe, row['DATETIME'], 'HIGH')
+#        dataframe.loc[dataframe['DATETIME'] == row['DATETIME'], 'LOW'] = Estimate(full_dataframe, row['DATETIME'], 'LOW')
+#        dataframe.loc[dataframe['DATETIME'] == row['DATETIME'], 'CLOSE'] = Estimate(full_dataframe, row['DATETIME'], 'CLOSE')
+#
+#    dataframe = dataframe[:-250]
+#    dataframe = dataframe[1:]
+#    dataframe.bfill(inplace=True)
+#    breakpoint()
 
     scaler = StandardScaler()
     features = GetFeatures()
@@ -82,32 +95,41 @@ def preprocessing_test(args, dataframe):
 
 def preprocessing_predict(args, dataframe, crypto):
     date = pd.to_datetime(args.date, format='%d/%m/%Y')
-    if args.old is False:
-        dataframe = dataframe[dataframe['DATETIME'] != date].reset_index(drop=True)
-        new_row = pd.DataFrame({
-            'DATETIME': date,
-            'OPEN': GetOpen(args, dataframe, crypto),
-            'HIGH': [Estimate(dataframe, args.date, 'HIGH')],
-            'LOW': [Estimate(dataframe, args.date, 'LOW')],
-            'CLOSE': [Estimate(dataframe, args.date, 'CLOSE')],
-            'VOLUME': [None],
-        })
-        dataframe = pd.concat([dataframe, new_row], ignore_index=True)
-        dataframe  = calc_indicators(dataframe, args)
-        take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
-        stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
-        open_price = dataframe.iloc[-1]['OPEN']
-        dataframe = dataframe.tail(1).reset_index(drop=True)
+    if args.estimation == True:
+        if args.old is False:
+            dataframe = dataframe[dataframe['DATETIME'] != date].reset_index(drop=True)
+            new_row = pd.DataFrame({
+                'DATETIME': date,
+                'OPEN': GetOpen(args, dataframe, crypto),
+                'HIGH': [Estimate(dataframe, args.date, 'HIGH')],
+                'LOW': [Estimate(dataframe, args.date, 'LOW')],
+                'CLOSE': [Estimate(dataframe, args.date, 'CLOSE')],
+                'VOLUME': [None],
+            })
+            dataframe = pd.concat([dataframe, new_row], ignore_index=True)
+            dataframe  = calc_indicators(dataframe, args)
+            take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
+            stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
+            open_price = dataframe.iloc[-1]['OPEN']
+            dataframe = dataframe.tail(1).reset_index(drop=True)
+
+        else:
+            dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args.date, 'HIGH')
+            dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args.date, 'CLOSE')
+            dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args.date, 'LOW')
+
+            dataframe  = calc_indicators(dataframe, args)
+            dataframe = dataframe[dataframe['DATETIME'] == date]
+            take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
+            stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
+            open_price = dataframe.iloc[-1]['OPEN']
 
     else:
-        dataframe.loc[dataframe['DATETIME'] == date, 'HIGH'] = Estimate(dataframe, args.date, 'HIGH')
-        dataframe.loc[dataframe['DATETIME'] == date, 'CLOSE'] = Estimate(dataframe, args.date, 'CLOSE')
-        dataframe.loc[dataframe['DATETIME'] == date, 'LOW'] = Estimate(dataframe, args.date, 'LOW')
-        
-        dataframe  = calc_indicators(dataframe, args)
+        dataframe = calc_indicators(dataframe, args)
         dataframe = dataframe[dataframe['DATETIME'] == date]
         take_profit = dataframe.iloc[-1]['OPEN'] + (args.profit * dataframe.iloc[-1]['ATR'])
         stop_loss = dataframe.iloc[-1]['OPEN'] - (args.risk * dataframe.iloc[-1]['ATR'])
         open_price = dataframe.iloc[-1]['OPEN']
 
     return dataframe, stop_loss, take_profit, open_price
+    

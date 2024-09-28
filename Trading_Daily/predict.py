@@ -16,6 +16,7 @@ def parsing():
         prog='trading algo',
         description='predictive model for trading'
     )
+    parser.add_argument('-estimation', action='store_true', help='use estimation models for High, Low, Close')
     parser.add_argument('-crypto', type=str, default=None, help='crypto to predict')
     parser.add_argument('-old', action='store_true', help='old date')
     parser.add_argument('-date', type=str, default=datetime.datetime.today().strftime('%d/%m/%Y'), help='prediction date')
@@ -84,3 +85,4 @@ if __name__ == '__main__':
  
     except Exception as error:
         printError(error)
+        

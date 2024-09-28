@@ -109,17 +109,17 @@ def GetFeatures():
     features = [
         'OPEN',
         'DAY',
-#        'YEAR',
+#        'YEAR',  AJOUTEZ L ANNEE COMME FEATURE SEULEMENT SUR LES CRYPTO RECENTE
         'ATR',
         'EMA',
-        'RSI',
-        'K(sto)',
-        'D(sto)',
+#        'RSI',
+#        'K(sto)',
+#        'D(sto)',
         'SMA',
         'WMA',
-        'DM+',
-        'DM-',
-        'ADX',
+#        'DM+',
+#        'DM-',
+#        'ADX',
         'U-BAND',
         'L-BAND',
         'MACD_LINE',
@@ -132,13 +132,12 @@ def GetFeatures():
         'ROC',
         'ATR_Lagged',
         'EMA_Lagged',
-        'RSI_Lagged',
-        'Momentum',
+#        'RSI_Lagged',
+#        'Momentum',
         'MACD_Difference',
         'Bollinger_Width',
         'EMA_SMA_Ratio'
     ]
-# AJOUTEZ L ANNEE COMME FEATURE SEULEMENT SUR LES CRYPTO RECENTE    
     return features
 
 
