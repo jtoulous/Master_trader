@@ -47,7 +47,7 @@ def GetCryptoFile(crypto, file_type='default'):
 
 def GetArg(arg_type):
     if arg_type == 'lifespan':
-        return 10
+        return 20
     elif arg_type == 'atr':
         return 14
     elif arg_type == 'ema':
@@ -74,35 +74,68 @@ def GetArg(arg_type):
 
 def GetRP(crypto, arg_type):
     if crypto == 'BTC-USD':
-        return 0.6 if arg_type == 'R' else 1.5
+        return 1 if arg_type == 'R' else 3
     if crypto == 'ETH-USD':
-        return 0.6 if arg_type == 'R' else 1.5
+        return 1 if arg_type == 'R' else 3
     if crypto == 'SOL-USD':
-        return 0.6 if arg_type == 'R' else 0.9
+        return 1 if arg_type == 'R' else 3
     if crypto == 'BNB-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'ADA-USD':
-        return 0.6 if arg_type == 'R' else 0.9
+        return 1 if arg_type == 'R' else 3
     if crypto == 'LINK-EUR':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'AVAX-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'DOGE-USD':
-        return 0.6 if arg_type == 'R' else 0.9
+        return 1 if arg_type == 'R' else 3
     if crypto == 'DOT-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'TRX-EUR':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'XRP-USD':
-        return 0.6 if arg_type == 'R' else 0.9
+        return 1 if arg_type == 'R' else 3
     if crypto == 'LTC-USD':
-        return 0.6 if arg_type == 'R' else 1.5
+        return 1 if arg_type == 'R' else 3
     if crypto == 'BCH-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'NEAR-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
     if crypto == 'UNI7083-USD':
-        return 0.6 if arg_type == 'R' else 1.2
+        return 1 if arg_type == 'R' else 3
+
+
+#def GetRP(crypto, arg_type):
+#    if crypto == 'BTC-USD':
+#        return 0.6 if arg_type == 'R' else 1.5
+#    if crypto == 'ETH-USD':
+#        return 0.6 if arg_type == 'R' else 1.5
+#    if crypto == 'SOL-USD':
+#        return 0.6 if arg_type == 'R' else 0.9
+#    if crypto == 'BNB-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'ADA-USD':
+#        return 0.6 if arg_type == 'R' else 0.9
+#    if crypto == 'LINK-EUR':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'AVAX-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'DOGE-USD':
+#        return 0.6 if arg_type == 'R' else 0.9
+#    if crypto == 'DOT-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'TRX-EUR':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'XRP-USD':
+#        return 0.6 if arg_type == 'R' else 0.9
+#    if crypto == 'LTC-USD':
+#        return 0.6 if arg_type == 'R' else 1.5
+#    if crypto == 'BCH-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'NEAR-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
+#    if crypto == 'UNI7083-USD':
+#        return 0.6 if arg_type == 'R' else 1.2
 
 
 def GetFeatures():

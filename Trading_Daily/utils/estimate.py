@@ -25,24 +25,24 @@ def Estimate(dataframe, date, pred_type):
     df = ATR(df, GetArg('atr'))
     df = SMA(df, GetArg('sma'))
     df = EMA(df, GetArg('ema'))
-    df = RSI(df, GetArg('rsi'))
+#    df = RSI(df, GetArg('rsi'))
     df = Bollinger_bands(df, GetArg('blg'))
     df = MACD(df, GetArg('macd'))
-    df = STO(df, GetArg('sto'))
+#    df = STO(df, GetArg('sto'))
     df = ROC(df)
-    df = DMI(df, GetArg('dmi'))
+#    df = DMI(df, GetArg('dmi'))
     df['GROWTH'] = (df['CLOSE'] - df['OPEN']) / df['OPEN'] * 100
     rectify_df = df.copy()
 
     df['LABEL'] = df[pred_type].shift(-1)
+    df = df.ffill()
     df = df[(df['DATETIME'] != date) & (df['DATETIME'] != today_date)]
-    
     features = list(df.columns)
     features.remove('DATETIME')
     features_df = df[features]
     scaler = StandardScaler()
-    tmp_df = pd.DataFrame(scaler.fit_transform(features_df), columns=features)
-    df[features] = tmp_df
+    scaled_values = scaler.fit_transform(features_df)
+    df[features] = pd.DataFrame(scaled_values, index=df.index, columns=features)
     label_mean = scaler.mean_[features.index('LABEL')]
     label_scale = scaler.scale_[features.index('LABEL')]
 
@@ -51,7 +51,6 @@ def Estimate(dataframe, date, pred_type):
     df = df[df['DATETIME'] != prev_date]
     X_train = df.iloc[:-2][features]
     y_train = df.iloc[:-2]['LABEL']
-
     RFC = RandomForestRegressor(n_estimators=100, random_state=42)
     GBC = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
     MLP = MLPRegressor(
