@@ -3,24 +3,11 @@ Predict whether positions taken on a buy will be winning or losing positions.
 
 ## Usage
 1. Run `make` to create a virtual environment and install dependencies.
-2. Run `python train.py -EURUSD data/EURUSD/EURUSD_data.csv` to start the training.
-3. Run `python predict_test.py -EURUSD data/EURUSD/EURUSD_preprocessed.csv` to run prediction tests on `EURUSD_preprocessed.csv`. The script `predict_test.py` will make predictions for every element in the data file, compare them to the true labels, and display a summary of the prediction accuracy.
-4. Run `python predict.py -EURUSD data/EURUSD/EURUSD_preprocessed.csv` to run predictions on `EURUSD_preprocessed.csv`. The script `predict.py` will make predictions for every element in the data file without comparing them to the true labels, allowing you to use a CSV file that isn't preprocessed but contains "DATETIME,OPEN,HIGH,LOW,CLOSE".
 
-## Algorithm Explanation
+2. Run `python train.py` to start the training wich will use all your db for training, or run `python train.py -test` to train the models on historical data from 2020-2023 in order to use the predict_test.py for validation, that will run predictions on 2024.
 
-1. **Preprocessing:**
-   1. We have a data file, `srcs/data/EURUSD/EURUSD_DATA.csv`, which contains every value of the EURUSD for each minute over the past three years (OPEN, HIGH, LOW, CLOSE). Using these values, I will calculate all the indicators that will be used as features.
-   2. I will determine the label for each line, which will be either 'WIN' or 'LOSS', by calculating the stop-loss and take-profit using the ATR (Average True Range). According to the `-lifespan` argument, I will observe the subsequent values and check whether the stop-loss or the take-profit is hit first.
-   3. Finally, I will scale my features and save the preprocessed data in `srcs/data/EURUSD/EURUSD_preprocessed.csv` to save time on future runs.
+3. Run `python predict.py -estimation` to run predictions for today, which is less reliable than running predictions on yesterday since the estimation option will use some other predictions models to predict the HIGH, LOW and CLOSE of the current day in order to calculate the indicators that will be used for the final prediction.
 
-2. **Training:**
-   1. Using scikit-learn, I train 5 different models (MLP, XGB, Random Forest, Logistic Regression, Gradient Boosting) with the `EURUSD_preprocessed.csv` dataframe. Under-sampling the losses is necessary since the dataframe contains significantly more losses than wins.
-   2. I save the trained models using joblib.
-   
-3. **Prediction:**
-   1. I preprocess the given data file if needed.
-   2. I load my 5 trained models using joblib.
-   3. I make predictions with each model.
-   4. I combine the predictions of the 5 models (a result will be 'WIN' only if all 5 models predict 'WIN').
-   5. I print the result.
+4. Run 'python predict.py -date 13/03/2021', to run prediction on a historical date without using the estimation system for the HIGH, LOW and CLOSE, it will simply use their true value stored in the historical db, or you can add '-estimation' if you wish to see the less reliable result using the estimation system.
+
+5. Run `python predict_test.py` to run prediction tests, wich will run predictions on all the data from 2024. This script is for validating the training by making predictions on unseen data, so if you use this script you need to train the models using 'python train.py -test' wich will exclude the data from 2024 from the training.
