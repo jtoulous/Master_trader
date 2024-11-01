@@ -33,29 +33,65 @@ def Parsing():
     return parser.parse_args()
 
 
-def TrainBalancedModels(dataframe, currency_pair, scaler, crossval):
+def TrainModels(dataframe, crypto, crossval, model_type)
     printLog('\nTRAINING GRADIENT BOOSTING MODEL...')
-    GradientBoosting(dataframe, currency_pair, crossval)
+    GradientBoosting(dataframe, currency_pair, args.crossval, 'balanced')
     printLog('GRADIENT BOOSTING MODEL DONE\n')
 
     printLog('TRAINING MLP MODEL...')
-    MLP(dataframe, currency_pair, crossval)
+    MLP(dataframe, currency_pair, args.crossval, 'balanced')
     printLog('MLP MODEL DONE\n')
 
     printLog('TRAINING LOGISTIC REGRESSION MODEL...')
-    LogReg(dataframe, currency_pair, crossval)
+    LogReg(dataframe, currency_pair, args.crossval, 'balanced')
     printLog('LOGISTIC REGRESSION MODEL DONE\n')
 
     printLog('TRAINING RANDOM FOREST CLASSIFIER MODEL...')
-    RFClassifier(dataframe, currency_pair, crossval)
+    RFClassifier(dataframe, currency_pair, args.crossval, 'balanced')
     printLog('RANDOM FOREST CLASSIFIER MODEL DONE\n')
 
     printLog('TRAINING XGB MODEL...')
-    XGB(dataframe, currency_pair, crossval)
+    XGB(dataframe, currency_pair, args.crossval, 'balanced')
     printLog('XGB MODEL DONE\n')
 
-    joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}.joblib')
 
+def BalancedModels(dataframe, crypto, args):
+    preprocess_pipeline = Pipeline([
+        ('indicators_calculator', IndicatorCalculator(args)),
+        ('label_calculator', LabelCalculator(args)),
+        ('cleaner', Cleaner()),
+        ('sampler', BalancedOverSampler()),
+        ('scaler',  StandardScaler())
+    ])
+    dataframe = preprocess_pipeline.fit_transform(dataframe)
+    TrainModels(dataframe, crypto, args, 'balanced')
+    joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}_balanced.joblib')
+
+
+def WinModels(dataframe, crypto, args):
+    preprocess_pipeline = Pipeline([
+        ('indicators_calculator', IndicatorCalculator(args)),
+        ('label_calculator', LabelCalculator(args)),
+        ('cleaner', Cleaner()),
+        ('sampler', UnbalancedSampler("win")),
+        ('scaler',  StandardScaler())
+    ])
+    dataframe = preprocess_pipeline.fit_transform(dataframe)
+    TrainModels(dataframe, crypto, args, 'win')
+    joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}_win.joblib')
+
+
+def LoseModels(dataframe, crypto, args):
+    preprocess_pipeline = Pipeline([
+        ('indicators_calculator', IndicatorCalculator(args)),
+        ('label_calculator', LabelCalculator(args)),
+        ('cleaner', Cleaner()),
+        ('sampler', UnbalancedSampler("lose")),
+        ('scaler',  StandardScaler())
+    ])
+    dataframe = preprocess_pipeline.fit_transform(dataframe)
+    TrainModels(dataframe, crypto, args, 'lose')
+    joblib.dump(scaler, f'models/architectures/scaler_{currency_pair}_lose.joblib')
 
 
 if __name__ == '__main__':
@@ -63,13 +99,14 @@ if __name__ == '__main__':
         args = Parsing()
 
         for crypto in ActiveCryptos():
-            args = UpdateArgs(args, crypto)
             printHeader(f'{crypto}')
+            args = UpdateArgs(args, crypto)
             file = GetCryptoFile(crypto) if args.test is False else GetCryptoFile(crypto, file_type='test train')
-            dataframe, scaler = preprocessing_train(args, file)
-            TrainBalancedModels(dataframe, crypto, scaler, args.crossval)
+            dataframe = ReadDf(file)
 
-#            TrainEstimator(dataframe, crypto)
+            BalancedModels(dataframe.copy(), crypto, args)  # model trained with balanced data (50% Win, 50% Lose)
+            WinModels(dataframe.copy(), crypto, args)   # model specialized in predicting wins by unbalancing the training data so that there are more winning cases in the data (66% Win, 33% Lose)
+            LoseModels(dataframe.copy(), crypto, args)  # models specialized in predicting losses (33% Win, 66% Lose)
 
 
     except Exception as error:
